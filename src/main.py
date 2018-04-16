@@ -1,6 +1,6 @@
 import sys
 
-proj_root = '/mnt/c/Users/yukun/workspace/d2rec/'
+proj_root = '../'
 sys.path.insert(0, proj_root + 'src/data-proc/')
 sys.path.insert(0, proj_root + 'src/model/')
 sys.path.insert(0, proj_root + 'src/utils/')

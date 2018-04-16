@@ -3,7 +3,7 @@ import os
 import json
 import numpy as np
 
-proj_root = '/mnt/c/Users/yukun/workspace/d2rec/'
+proj_root = '../../'
 sys.path.insert(0, proj_root+'src/utils/')
 sys.path.insert(0, proj_root + 'src/bean/')
 
