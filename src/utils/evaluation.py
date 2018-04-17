@@ -9,6 +9,7 @@ sys.path.insert(0, proj_root + 'src/bean/')
 
 from utils import team_purchase_sim_calc
 from item import item_class as iclass
+from viz import cdf_plot
 
 class eva:
 	def __init__(self, rdata):
@@ -22,6 +23,7 @@ class eva:
 	def nec_eva(self, fpath, model):
 		mcount=0
 		sim_sum=0
+		sim_vec = []
 		for fname in os.listdir(fpath):
 			data=json.load(open(fpath+fname))
 			wplayers=[]
@@ -65,7 +67,32 @@ class eva:
 			#print rec_vitem
 			sim=team_purchase_sim_calc(self.iname2iid.inverse, hero_vitem, rec_vitem, sim_func='exist_in_rec')
 			print "rec-actual item purchase similarity of match " + str(fname) + ": " + str(sim)
+			sim_vec.append(sim)
 			if not np.isnan(sim):
 				sim_sum=(sim_sum*mcount+sim)/(mcount+1)
 				mcount+=1
 		print "all winners similarity avg: " + str(sim_sum)
+		cdf_plot(sim_vec)
+
+	def suf_eva(self, fpath, model):
+		for fname in os.listdir(fpath):
+			data=json.load(open(fpath+fname))
+			wplayers=[]
+			# assumes: the first 5 is radiant hero
+			# get the winner players
+			if(data['radiant_win']):
+				wplayers=data['players'][0:5]
+			else:
+				wplayers=data['players'][5:10]
+			hero_vitem=[]
+			rec_vitem=[]
+			for p in wplayers:
+				pass
+
+	# TODOs:
+	# two evaluation plots:
+	# 1. similarity distribution in all winning teams
+	# 2. winning rate distribution in all similarity conditions
+	# 3. how much similarity can we say that the hero followed the recommended item
+	# 4. inherent similarity: how much similarity in item purchase does a hero has 
+	# in all conditions?
