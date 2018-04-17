@@ -22,3 +22,9 @@ def cdf_plot(x, bins=10, xlabel='Similarity', name='cdf.pdf'):
     plt.subplots_adjust(left=0.15)
     #plt.show()
     plt.savefig(name, format='pdf')
+    plt.clf()
+
+def bar_plot(x, y, width=0.1, name='bar.pdf'):
+    plt.bar(x, y, width, align='center')
+    plt.savefig(name, format='pdf')
+    plt.clf()

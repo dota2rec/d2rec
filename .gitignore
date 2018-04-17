@@ -1,3 +1,10 @@
+# generated pdf
+*.pdf
+data/
+test/
+data_small/
+test_small/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

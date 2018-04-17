@@ -71,6 +71,7 @@ def feature_vec(iid2name, dic1, arr2):
 
 # sim: similarity between item purchases
 # ideal evaluation: P(Exactly same purchase log) 
+# assume the input team has hero for at least one player
 # @hp: actual hero-purchase counter dict array
 # @hp_rec: recommended hero-purchase counter dict array
 # @opt: aggregation function, average and etc
@@ -94,7 +95,7 @@ def team_purchase_sim_calc(iid2name, hp, hp_rec, norm=False, sim_func='cosine', 
 				hpr=hpr/norm2
 			# calc cosine similarity
 			sim=1-sp.distance.cosine(h, hpr)
-			# append current hero item similarity
+			# append crrent hero item similarity
 			sim_vec.append(sim)
 	elif sim_func == 'exist_in_rec':
 		for (h, hpr) in zip(hp, hp_rec):
@@ -113,11 +114,8 @@ def team_purchase_sim_calc(iid2name, hp, hp_rec, norm=False, sim_func='cosine', 
 	print "per hero similarity vector:"
 	print sim_vec
 	if aggr_opt=='avg':
-		#print len(hp)
 		# the length should always be 5
-		assert(len(hp)==5)
-		#print "sim_vec: "
-		#print sim_vec
+		assert(len(hp)>0)
 		tot_sim=sum(sim_vec)/len(sim_vec)
 	else:
 		print "no aggr function " + sim_func + " is pre defined!"

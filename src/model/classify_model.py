@@ -37,7 +37,10 @@ class classify_model(base_model):
 			match_file = open(self.datapath + match_file_name)
 			match_data = json.load(match_file)
 			for player in match_data['players']:
-				hero_id = self.hid_org2new[player['hero_id']]
+				if player['hero_id'] != None:
+					hero_id = self.hid_org2new[player['hero_id']]
+				else:
+					continue
 				purchases = player['purchase']
 
 				win = player['isRadiant'] == player['radiant_win']
