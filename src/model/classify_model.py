@@ -2,6 +2,7 @@ import json
 import os
 import numpy as np
 import sys
+from tqdm import tqdm
 
 proj_root = '../../'
 sys.path.insert(0, proj_root+'src/utils/')
@@ -33,7 +34,8 @@ class classify_model(base_model):
 
 	# train basic freq model using json match records data in 'datapath'
 	def train(self):
-		for match_file_name in os.listdir(self.datapath):
+		print self.__class__.__name__ + " train(): "
+		for match_file_name in tqdm(os.listdir(self.datapath)):
 			match_file = open(self.datapath + match_file_name)
 			match_data = json.load(match_file)
 			for player in match_data['players']:
@@ -57,7 +59,7 @@ class classify_model(base_model):
 						item_vec[item_id] = int(item_count)
 
 						hero_freq = self.basic_freq[hero_id]
-				    	hero_freq[item_id] += base_model.WIN_SCORE if win else base_model.LOSE_SCORE
+						hero_freq[item_id] += base_model.WIN_SCORE if win else base_model.LOSE_SCORE
 				# use item_vec here for stats purpose per hero in a match
 			match_file.close()
 	# @h: the hero id
@@ -65,7 +67,7 @@ class classify_model(base_model):
 	def rec(self, h, k):
 		hifreq = self.basic_freq[h]
 		tki = topk_index(hifreq, k)
-		print "recommended length: " + str(len(tki))
+		#print "recommended length: " + str(len(tki))
 		return tki
 
 #	def calc_base_freq(hname2hid, iname2iid, consider_func='cost'):

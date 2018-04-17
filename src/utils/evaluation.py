@@ -3,6 +3,7 @@ import os
 import json
 import numpy as np
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 proj_root = '../../'
 sys.path.insert(0, proj_root+'src/utils/')
@@ -22,12 +23,13 @@ class eva:
 	# assumes: dummy_is_vital(iid)
 	# necissity evaluation
 	# calculating probability 
-	# returns: a vector that records the similarity in items with winning team of each match
+	# returns: a vector that records the similarity in items of winning team of each match
 	def nec_eva(self, fpath, model):
+		print "necissity evaluation: "
 		mcount=0
 		sim_sum=0
 		sim_vec = []
-		for fname in os.listdir(fpath):
+		for fname in tqdm(os.listdir(fpath)):
 			data=json.load(open(fpath+fname))
 			wplayers=[]
 			# assumes: the first 5 is radiant hero
@@ -41,22 +43,23 @@ class eva:
 
 			if len(hero_vitem) > 0:
 				sim=team_purchase_sim_calc(self.iname2iid.inverse, hero_vitem, rec_vitem, sim_func='exist_in_rec')
-				print "rec-actual item purchase similarity of match " + str(fname) + ": " + str(sim)
+				#print "rec-actual item purchase similarity of match " + str(fname) + ": " + str(sim)
 				
 				sim_vec.append(sim)
 				if not np.isnan(sim):
 					sim_sum=(sim_sum*mcount+sim)/(mcount+1)
 					mcount+=1
-		print "all winners similarity avg: " + str(sim_sum)
+		#print "all winners similarity avg: " + str(sim_sum)
 		return sim_vec
 
 	# same prerequisites as nec_eva()
 	# + bin: how many bucket we want to put all similarities in
 	# returns
 	def suf_eva(self, fpath, model):
+		print "sufficiency evaluation:"
 		result = []
 
-		for fname in os.listdir(fpath):
+		for fname in tqdm(os.listdir(fpath)):
 			data=json.load(open(fpath+fname))
 			wplayers=[]
 			# assumes: the first 5 is radiant hero
@@ -81,10 +84,8 @@ class eva:
 		return result
 
 	def suf_histo(self, suf_res, bin=10):
-		bin_result = []
-		for i in range(0, bin):
-			bin_result.append([])
 		unit = 1.0/bin
+		bin = bin+1
 		x = [((i*unit)+(unit/2)) for i in range(0, bin)]
 		y = [0]*bin
 		y_tot = [0]*bin
@@ -95,8 +96,9 @@ class eva:
 			new_tot = y_tot[index]+1
 			y[index] = (y[index]*y_tot[index]+win)/(float(new_tot))
 			y_tot[index] = new_tot
-		print x
-		print y
+		print "percentage: " + y
+		print "sample count: " + y_tot
+		print "bins: " + x
 		bar_plot(x, y)
 
 
@@ -105,7 +107,6 @@ class eva:
 	# 1. hero_vitem: actual [hero*{item:count}]
 	# 2. rec_vitem: recommended [item]
 	def get_team_actual_rec_item(self, players, model):
-		print "entering new function"
 		hero_vitem=[]
 		rec_vitem=[]
 		for p in players:
@@ -126,19 +127,19 @@ class eva:
 				else:
 					vitem[k]=purchase[k]
 			hero_vitem.append(vitem)
-			print self.hname2hid.inverse[hid]
-			print "actual purchase: "
-			print vitem
+			#print self.hname2hid.inverse[hid]
+			#print "actual purchase: "
+			#print vitem
 			#print "hero item avg count: " + str(hero_item_count[hid])
 			# rec with new interface
 			rec=model.rec(hid, len(vitem))
 			#rec=base_rec_h(hid, model, len(vitem))
 			rec_vitem.append(rec)
 			# print recommended items
-			print "recommended: "
-			rec_name=[self.iname2iid.inverse[iid] for iid in rec]
-			print rec_name
-			print ""	
+			#print "recommended: "
+			#rec_name=[self.iname2iid.inverse[iid] for iid in rec]
+			#print rec_name
+			#print ""	
 		return hero_vitem, rec_vitem
 	# TODOs
 	# two evaluation plots:

@@ -2,6 +2,7 @@ import json
 import os
 import numpy as np
 import sys
+from tqdm import tqdm
 
 proj_root = '../../'
 sys.path.insert(0, proj_root+'src/utils/')
@@ -31,10 +32,15 @@ class base_model:
 
 	# train basic freq model using json match records data in 'datapath'
 	def train(self):
-		for match_file_name in os.listdir(self.datapath):
+		print self.__class__.__name__ + " train(): "
+		for match_file_name in tqdm(os.listdir(self.datapath)):
 			match_file = open(self.datapath + match_file_name)
 			match_data = json.load(match_file)
 			for player in match_data['players']:
+				if player['hero_id'] != None and player['purchase'] != None:
+					hero_id = self.hid_org2new[player['hero_id']]
+				else:
+					continue
 				hero_id = self.hid_org2new[player['hero_id']]
 				purchases = player['purchase']
 
@@ -42,16 +48,16 @@ class base_model:
 				for item_name in purchases:
 					if item_name in self.iname2iid:
 						item_id = self.iname2iid[item_name]
-				    	#if is_consider(item_name, consider_func) and purchases[item_name] is not None:
-				    	hero_freq = self.basic_freq[hero_id]
-				    	hero_freq[item_id] += base_model.WIN_SCORE if win else base_model.LOSE_SCORE
+						#if is_consider(item_name, consider_func) and purchases[item_name] is not None:
+						hero_freq = self.basic_freq[hero_id]
+						hero_freq[item_id] += base_model.WIN_SCORE if win else base_model.LOSE_SCORE
 			match_file.close()
 	# @h: the hero id
 	# @k: how many items to return
 	def rec(self, h, k):
 		hifreq = self.basic_freq[h]
 		tki = topk_index(hifreq, k)
-		print "recommended length: " + str(len(tki))
+		#print "recommended length: " + str(len(tki))
 		return tki
 
 #	def calc_base_freq(hname2hid, iname2iid, consider_func='cost'):

@@ -111,8 +111,8 @@ def team_purchase_sim_calc(iid2name, hp, hp_rec, norm=False, sim_func='cosine', 
 	else:
 		raise Exception("No similarity function " + sim_func + " is defined!")
 
-	print "per hero similarity vector:"
-	print sim_vec
+	#print "per hero similarity vector:"
+	#print sim_vec
 	if aggr_opt=='avg':
 		# the length should always be 5
 		assert(len(hp)>0)
