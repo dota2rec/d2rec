@@ -75,35 +75,51 @@ def feature_vec(iid2name, dic1, arr2):
 # @hp_rec: recommended hero-purchase counter dict array
 # @opt: aggregation function, average and etc
 # TODO: for diff heroes, we may have different weight when calc total similarity
-def team_purchase_sim_calc(iid2name, hp, hp_rec, norm=False, aggr_opt='avg'):
-    #print "len(hero purchase): " + str(len(hp))
-    sim_vec=[]
-    tot_sim=0
-    for (h, hpr) in zip(hp, hp_rec):
-        #print h
-        #print hpr
-        # item purchase counter to feature vector
-        h, hpr=feature_vec(iid2name, h, hpr)
-        # do normalization if needed
-        if norm:
-            norm1=np.linalg.norm(hp)
-            norm2=np.linalg.norm(hpr)
-            h=h/norm1
-            hpr=hpr/norm2
-        # calc cosine similarity
-        sim=1-sp.distance.cosine(h, hpr)
-        # append current hero item similarity
-        sim_vec.append(sim)
-    print "per hero similarity vector:"
-    print sim_vec
-    if aggr_opt=='avg':
-        #print len(hp)
-        # the length should always be 5
-        assert(len(hp)==5)
-        #print "sim_vec: "
-        #print sim_vec
-        tot_sim=sum(sim_vec)/len(sim_vec)
-    else:
-        print "no such aggr function is pre defined!"
-        tot_sim=-1
-    return tot_sim
+def team_purchase_sim_calc(iid2name, hp, hp_rec, norm=False, sim_func='cosine', aggr_opt='avg'):
+	#print "len(hero purchase): " + str(len(hp))
+	sim_vec=[]
+	tot_sim=0
+	
+	if sim_func == 'cosine':
+		for (h, hpr) in zip(hp, hp_rec):
+			#print h
+			#print hpr
+			# item purchase counter to feature vector
+			h, hpr=feature_vec(iid2name, h, hpr)
+			# do normalization if needed
+			if norm:
+				norm1=np.linalg.norm(hp)
+				norm2=np.linalg.norm(hpr)
+				h=h/norm1
+				hpr=hpr/norm2
+			# calc cosine similarity
+			sim=1-sp.distance.cosine(h, hpr)
+			# append current hero item similarity
+			sim_vec.append(sim)
+	elif sim_func == 'exist_in_rec':
+		for (h, hpr) in zip(hp, hp_rec):
+			#print h
+			#print hpr
+			# item purchase counter to feature vector
+			success = 0
+			for rec in hpr:
+				iname = iid2name[rec]
+				if iname in h:
+					success += 1
+			sim_vec.append((float(success)/len(h)))
+	else:
+		raise Exception("No similarity function " + sim_func + " is defined!")
+
+	print "per hero similarity vector:"
+	print sim_vec
+	if aggr_opt=='avg':
+		#print len(hp)
+		# the length should always be 5
+		assert(len(hp)==5)
+		#print "sim_vec: "
+		#print sim_vec
+		tot_sim=sum(sim_vec)/len(sim_vec)
+	else:
+		print "no aggr function " + sim_func + " is pre defined!"
+		tot_sim=-1
+	return tot_sim

@@ -63,7 +63,7 @@ class eva:
 				print ""
 			#print hero_vitem
 			#print rec_vitem
-			sim=team_purchase_sim_calc(self.iname2iid.inverse, hero_vitem, rec_vitem)
+			sim=team_purchase_sim_calc(self.iname2iid.inverse, hero_vitem, rec_vitem, sim_func='exist_in_rec')
 			print "rec-actual item purchase similarity of match " + str(fname) + ": " + str(sim)
 			if not np.isnan(sim):
 				sim_sum=(sim_sum*mcount+sim)/(mcount+1)
