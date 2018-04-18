@@ -49,7 +49,7 @@ class eva:
 				if not np.isnan(sim):
 					sim_sum=(sim_sum*mcount+sim)/(mcount+1)
 					mcount+=1
-		#print "all winners similarity avg: " + str(sim_sum)
+		print "all winners similarity avg: " + str(sim_sum)
 		return sim_vec
 
 	# same prerequisites as nec_eva()
@@ -96,12 +96,13 @@ class eva:
 			new_tot = y_tot[index]+1
 			y[index] = (y[index]*y_tot[index]+win)/(float(new_tot))
 			y_tot[index] = new_tot
-		print "percentage: " + y
-		print "sample count: " + y_tot
-		print "bins: " + x
+		print "percentage: " 
+		print y
+		print "sample count: "
+		print y_tot
+		print "bins: "
+		print x
 		bar_plot(x, y)
-
-
 
 	# returns:
 	# 1. hero_vitem: actual [hero*{item:count}]
@@ -141,10 +142,15 @@ class eva:
 			#print rec_name
 			#print ""	
 		return hero_vitem, rec_vitem
-	# TODOs
+	
 	# two evaluation plots:
 	# 1. similarity distribution in all winning teams
 	# 2. winning rate distribution in all similarity conditions
+
+	# TODOs
 	# 3. how much similarity can we say that the hero followed the recommended item
 	# 4. inherent similarity: how much similarity in item purchase does a hero has 
 	# in all conditions?
+	
+
+	# weighting

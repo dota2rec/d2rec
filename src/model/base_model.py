@@ -17,8 +17,8 @@ from utils import topk_index
 # output is:
 # self.basic_freq = [h*i]
 class base_model:
-	WIN_SCORE = 1.2
-	LOSE_SCORE = 0.8
+	WIN_SCORE = 1.0
+	LOSE_SCORE = 0.1
 
 	def __init__(self, hid_org2new, iname2iid, datapath):
 		self.hid_org2new = hid_org2new
@@ -31,7 +31,12 @@ class base_model:
 		pass
 
 	# train basic freq model using json match records data in 'datapath'
-	def train(self):
+	# opt:
+	# 1. freq: raw frequency with win/lose weight
+	# 2. wrate: winning rate of the item
+	#	2.1. TODO: how about rare cases where only several matches item i is choose 
+	#		 therefore a high/low winning rate        
+	def train(self, opt='freq'):
 		print self.__class__.__name__ + " train(): "
 		for match_file_name in tqdm(os.listdir(self.datapath)):
 			match_file = open(self.datapath + match_file_name)

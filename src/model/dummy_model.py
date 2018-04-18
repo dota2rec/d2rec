@@ -3,6 +3,7 @@ import os
 import numpy as np
 import sys
 from tqdm import tqdm
+import pickle
 
 proj_root = '../../'
 sys.path.insert(0, proj_root+'src/utils/')
@@ -18,9 +19,7 @@ from base_model import base_model
 # hid_org2new, iname2iid mapping set
 # output is:
 # self.basic_freq = [h*i]
-class classify_model(base_model):
-	WIN_SCORE = 1.2
-	LOSE_SCORE = 0.8
+class dummy_model(base_model):
 
 	def __init__(self, hid_org2new, iname2iid, datapath):
 		self.hid_org2new = hid_org2new
@@ -30,10 +29,17 @@ class classify_model(base_model):
 		hcount = self.hid_org2new.len()
 		icount = self.iname2iid.len()
 		self.basic_freq = np.zeros((hcount, icount))
+		# for winning rate
+		self.basic_wr = np.zeros((hcount, icount))
 		pass
 
 	# train basic freq model using json match records data in 'datapath'
-	def train(self):
+	def train(self, opt='freq'):
+		# [h*i] item occurence total
+		hi_total=[]
+		#if opt=='wrate':
+		hi_total=np.zeros((len(self.hid_org2new), len(self.iname2iid)))
+
 		print self.__class__.__name__ + " train(): "
 		for match_file_name in tqdm(os.listdir(self.datapath)):
 			match_file = open(self.datapath + match_file_name)
@@ -58,10 +64,22 @@ class classify_model(base_model):
 							item_count = 0
 						item_vec[item_id] = int(item_count)
 
+						#if opt=='freq':
 						hero_freq = self.basic_freq[hero_id]
 						hero_freq[item_id] += base_model.WIN_SCORE if win else base_model.LOSE_SCORE
+						#elif opt=='wrate':
+						hero_wr = self.basic_wr[hero_id]
+						hero_wr[item_id] += 1 if win else 0
+						hi_total[hero_id][item_id] += 1
 				# use item_vec here for stats purpose per hero in a match
 			match_file.close()
+		#if opt == 'wrate':
+		print self.basic_freq[0]
+
+		print self.basic_wr[0]
+		print hi_total[0]
+		self.basic_wr = np.divide(self.basic_wr, hi_total, out=np.zeros_like(self.basic_wr), where=hi_total!=0)
+		print self.basic_wr[0]
 	# @h: the hero id
 	# @k: how many items to return
 	def rec(self, h, k):
@@ -69,25 +87,3 @@ class classify_model(base_model):
 		tki = topk_index(hifreq, k)
 		#print "recommended length: " + str(len(tki))
 		return tki
-
-#	def calc_base_freq(hname2hid, iname2iid, consider_func='cost'):
-#		#hero_count = 1000
-#		#item_count = 1000
-#		hero_count = hname2hid.len()
-#		item_count = iname2iid.len()
-#		self.basic_freq = np.zeros((hero_count, item_count))
-#		for match_file_name in os.listdir(self.datapath):
-#			match_file = open(self.datapath + match_file_name)
-#			match_data = json.load(match_file)
-#			for player in match_data['players']:
-#				hero_id = player['hero_id']
-#				purchases = player['purchase']
-#
-#				win = player['isRadiant'] == player['radiant_win']
-#				for item_name in purchases:
-#					if item_name in iname2iid:
-#						item_id = iname2iid[item_name]
-#				    	#if is_consider(item_name, consider_func) and purchases[item_name] is not None:
-#				    	hero_freq = basic_freq[hero_id]
-#				    	hero_freq[item_id] += base_model.WIN_SCORE if win else base_model.LOSE_SCORE
-#			match_file.close()

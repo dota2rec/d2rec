@@ -1,5 +1,6 @@
 # generated pdf
 *.pdf
+mini/
 data/
 test/
 data_small/
