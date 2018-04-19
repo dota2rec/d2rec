@@ -4,6 +4,7 @@ import numpy as np
 import sys
 from tqdm import tqdm
 
+
 proj_root = '../../'
 sys.path.insert(0, proj_root+'src/utils/')
 sys.path.insert(0, proj_root+'src/model/')
