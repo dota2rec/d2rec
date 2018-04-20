@@ -25,6 +25,8 @@ rdata  = raw_data(proj_root)
 MODEL_DIR = './model/'
 models = {}
 
+active_model_name = ''
+
 def import_model_class_from_file(model_name):
     model_module = __import__(model_name)
     return getattr(model_module, model_name)
@@ -41,7 +43,7 @@ for model_filename in os.listdir(MODEL_DIR):
         models[model_name] = model
 
         # set current model as active
-        active_model = model
+        active_model_name = model_name
 
 iid_new2org = { v: k for k, v in rdata.iid_org2new.items() }
 
@@ -66,7 +68,7 @@ def get_recommendations(heroes):
     for hero in heroes:
         item_ord_new_id_list = []
 
-        rec_item_ids = active_model.rec(rdata.hid_org2new[hero['id']], 10).tolist()
+        rec_item_ids = models[active_model_name].rec(rdata.hid_org2new[hero['id']], 10).tolist()
         print rec_item_ids
 
         for item_id in rec_item_ids:
@@ -85,24 +87,26 @@ def test():
 
 @app.route("/api/get_models", methods=['GET'])
 def get_models():
-    return response_ok(models.keys())
+    return response_ok({
+        'models': models.keys(),
+        'active': active_model_name
+    })
 
 @app.route("/api/change_model", methods=['POST'])
 def change_model():
-    global active_model
+    global active_model_name
     request_data = request.get_json()
     model_name = request_data['modelName']
     if model_name in models:
         print '---------- Change model to ' + model_name
-        active_model = models[model_name]
+        active_model_name = model_name
         return response_ok()
     else:
         return response_error('not a valid model')
 
 @app.route("/api/compute_items", methods=['POST'])
 def compute_items():
-    global active_model
-    print '---------- Predicting items using the model: ' + str(active_model)
+    print '---------- Predicting items using the model: ' + active_model_name
     request_data = request.get_json()
     if request_data is None:
         return response_error()
@@ -121,7 +125,7 @@ def formatOutput(string_list):
 @app.route("/api/<match_id>", methods=['GET'])
 def getResults(match_id):
     evaluator = eva(rdata)
-    string_list = evaluator.nec_eva(proj_root+DATA_DIR, active_model)
+    string_list = evaluator.nec_eva(proj_root+DATA_DIR, models[active_model_name])
     return formatOutput(string_list)
 
 if 'PROD' in os.environ:
