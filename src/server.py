@@ -3,6 +3,7 @@ from flask_cors import CORS
 import json
 import random
 import sys
+import daemon
 
 proj_root = '../'
 sys.path.insert(0, proj_root + 'src/data-proc/')
@@ -56,6 +57,10 @@ def get_recommendations(heroes):
         results[hero['id']] = item_ord_new_id_list
     return results
 
+@app.route("/api/test", methods=['GET'])
+def test():
+    return 'appears to be running'
+
 @app.route("/api/compute_items", methods=['POST'])
 def compute_items():
     request_data = request.get_json()
@@ -92,5 +97,5 @@ def getResults(match_id):
     string_list = evaluator.nec_eva(proj_root+DATA_DIR, bmodel)
     return formatOutput(string_list)
 
-if __name__ == "__main__":
-	app.run(threaded=True)
+with daemon.DaemonContext():
+	app.run(host= '0.0.0.0', threaded=True)
