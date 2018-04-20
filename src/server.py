@@ -20,6 +20,8 @@ rdata  = raw_data(proj_root)
 bmodel = base_model(rdata.hid_org2new, rdata.item_name2id, (proj_root + DATA_DIR))
 bmodel.train()
 
+iid_new2org = { v: k for k, v in rdata.iid_org2new.items() }
+
 dummy_item_ids = [14, 15, 16, 29, 51, 58, 69, 96, 104, 125, 133, 137, 152, 160, 162, 172, 188, 226]
 
 app = Flask(__name__)
@@ -35,24 +37,45 @@ def random_items():
     random.shuffle(dummy_item_ids)
     return dummy_item_ids[0:10]
 
+def get_recommendations(heroes):
+    results = {}
+
+    for hero in heroes:
+        item_ord_new_id_list = []
+
+        rec_item_ids = bmodel.rec(rdata.hid_org2new[hero['id']], 10).tolist()
+        print rec_item_ids
+
+        for item_id in rec_item_ids:
+            item_org_id = iid_new2org[item_id]
+            item_ord_new_id_list.append({
+                'new_id': item_id,
+                'id': item_org_id
+            })
+
+        results[hero['id']] = item_ord_new_id_list
+    return results
+
 @app.route("/api/compute_items", methods=['POST'])
 def compute_items():
     request_data = request.get_json()
     if request_data is None:
         return response_error()
 
-    iid_new2org = { v: k for k, v in rdata.iid_org2new.items() }
-    print iid_new2org
+    team_recommendations = get_recommendations(request_data['heroes']['team'])
+    enemy_recommendations = get_recommendations(request_data['heroes']['enemy'])
 
-    team_recommendations = {
-        hero['id']: [iid_new2org[iid] for iid in bmodel.rec(rdata.hid_org2new[hero['id']], 10).tolist()]
-        for hero in request_data['heroes']['team']
-    }
+    print team_recommendations
 
-    enemy_recommendations = {
-        hero['id']: [iid_new2org[iid] for iid in bmodel.rec(rdata.hid_org2new[hero['id']], 10).tolist()]
-        for hero in request_data['heroes']['enemy']
-    }
+    # team_recommendations = {
+    #     hero['id']: [iid_new2org[iid] for iid in bmodel.rec(rdata.hid_org2new[hero['id']], 10).tolist()]
+    #     for hero in request_data['heroes']['team']
+    # }
+
+    # enemy_recommendations = {
+    #     hero['id']: [iid_new2org[iid] for iid in bmodel.rec(rdata.hid_org2new[hero['id']], 10).tolist()]
+    #     for hero in request_data['heroes']['enemy']
+    # }
 
     return response_ok({
         'team': team_recommendations,
