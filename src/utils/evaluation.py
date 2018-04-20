@@ -14,6 +14,17 @@ from item import item_class as iclass
 from viz import cdf_plot
 from viz import bar_plot
 
+def get_two_teams(data):
+	# assumes: the first 5 is radiant hero
+	# get the winner players
+	if(data['radiant_win']):
+		wplayers=data['players'][0:5]
+		lplayers=data['players'][5:10]
+	else:
+		wplayers=data['players'][5:10]
+		lplayers=data['players'][0:5]
+	return wplayers, lplayers
+
 class eva:
 	def __init__(self, rdata):
 		self.iname2iid = rdata.item_name2id
@@ -31,15 +42,9 @@ class eva:
 		sim_vec = []
 		for fname in tqdm(os.listdir(fpath)):
 			data=json.load(open(fpath+fname))
-			wplayers=[]
-			# assumes: the first 5 is radiant hero
-			# get the winner players
-			if(data['radiant_win']):
-				wplayers=data['players'][0:5]
-			else:
-				wplayers=data['players'][5:10]
+			wplayers, lplayers = get_two_teams(data)
 
-			hero_vitem, rec_vitem = self.get_team_actual_rec_item(wplayers, model)
+			hero_vitem, rec_vitem = self.get_team_actual_rec_item(wplayers, model, enemies=lplayers)
 
 			if len(hero_vitem) > 0:
 				sim=team_purchase_sim_calc(self.iname2iid.inverse, hero_vitem, rec_vitem, sim_func='exist_in_rec')
@@ -61,23 +66,15 @@ class eva:
 
 		for fname in tqdm(os.listdir(fpath)):
 			data=json.load(open(fpath+fname))
-			wplayers=[]
-			# assumes: the first 5 is radiant hero
-			# get the winner players
-			if(data['radiant_win']):
-				wplayers=data['players'][0:5]
-				lplayers=data['players'][5:10]
-			else:
-				wplayers=data['players'][5:10]
-				lplayers=data['players'][0:5]
+			wplayers, lplayers = get_two_teams(data)
 
 			# similarity of the winning team
-			hero_vitem, rec_vitem = self.get_team_actual_rec_item(wplayers, model)
+			hero_vitem, rec_vitem = self.get_team_actual_rec_item(wplayers, model, enemies=lplayers)
 			if len(hero_vitem) > 0:
 				sim=team_purchase_sim_calc(self.iname2iid.inverse, hero_vitem, rec_vitem, sim_func='exist_in_rec')
 			result.append([sim, 1])
 			# similarity of the losing team
-			hero_vitem, rec_vitem = self.get_team_actual_rec_item(lplayers, model)
+			hero_vitem, rec_vitem = self.get_team_actual_rec_item(lplayers, model, enemies=wplayers)
 			if len(hero_vitem) > 0:
 				sim=team_purchase_sim_calc(self.iname2iid.inverse, hero_vitem, rec_vitem, sim_func='exist_in_rec')
 			result.append([sim, 0])
@@ -107,7 +104,7 @@ class eva:
 	# returns:
 	# 1. hero_vitem: actual [hero*{item:count}]
 	# 2. rec_vitem: recommended [item]
-	def get_team_actual_rec_item(self, players, model):
+	def get_team_actual_rec_item(self, players, model, enemies=None):
 		hero_vitem=[]
 		rec_vitem=[]
 		for p in players:
@@ -133,8 +130,7 @@ class eva:
 			#print vitem
 			#print "hero item avg count: " + str(hero_item_count[hid])
 			# rec with new interface
-			rec=model.rec(hid, len(vitem))
-			#rec=base_rec_h(hid, model, len(vitem))
+			rec=model.rec(hid, len(vitem), players, enemies)
 			rec_vitem.append(rec)
 			# print recommended items
 			#print "recommended: "

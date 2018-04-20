@@ -59,7 +59,7 @@ class base_model:
 			match_file.close()
 	# @h: the hero id
 	# @k: how many items to return
-	def rec(self, h, k):
+	def rec(self, h, k, allies=None, enemies=None):
 		hifreq = self.basic_freq[h]
 		tki = topk_index(hifreq, k)
 		#print "recommended length: " + str(len(tki))
