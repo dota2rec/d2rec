@@ -44,6 +44,11 @@ def evaluation():
 def test():
 	rdata = raw_data(proj_root)
 	rdata.print_item_table()
-	consume_iids = iclass.consume_iids
+	child = rdata.ihelper.syn_iid_child
+	#print len(child)
+	for c in child:
+		print rdata.item_name2id.inverse[c] + ": " + str([rdata.item_name2id.inverse[i] for i in child[c]])
+	#for iid in consume_iids:
+	#	print rdata.item_name2id.inverse[iid] + "\t" +str(iid) + "\t" + str(rdata.iid_org2new.inverse[iid])
 
 test()
