@@ -11,6 +11,7 @@ from base_model import base_model
 from classify_model import classify_model
 from dummy_model import dummy_model
 from evaluation import eva
+from item import item_class as iclass
 
 # production test
 #DATA_DIR = 'data/'
@@ -43,5 +44,6 @@ def evaluation():
 def test():
 	rdata = raw_data(proj_root)
 	rdata.print_item_table()
+	consume_iids = iclass.consume_iids
 
 test()

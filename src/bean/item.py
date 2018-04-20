@@ -11,7 +11,13 @@ class item_class:
 
 	# transformed consume iids
 	#consume_iids = [4, 5, 6, 7, 8, 9, 10, 87, 145, 151, 173, 174]
-	consume_iids = [216,40,42,43,218,44,241,257,265,237,38,39]
+	consume_iids = [216,40,42,43,218,44,241,257,265,237,38,39,46]
+	# enchanted mango(4), dust(5), ward_observer(42), ward_sentry(43), 
+	# TODO: we should consider:
+	# dust	40
+	# ward_observer	42
+	# ward_sentry	43
+	# ward_dispenser	218
 
 	@initializer
 	def __init__(self, iname2iid, iid2name):
@@ -23,7 +29,6 @@ class item_class:
 		self.syn_iid_child = dict_id_org2new(syn_iid_child)
 
 		# new consume_iids after continuous assignment
-		# enchanted mango(4), dust(5), 
 		#print "original consume_iids: "
 		#print consume_iids
 
