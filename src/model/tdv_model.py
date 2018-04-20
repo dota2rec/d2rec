@@ -19,7 +19,7 @@ from base_model import base_model
 # hid_org2new, iname2iid mapping set
 # output is:
 # self.basic_freq = [h*i]
-class classify_model(base_model):
+class tdv_model(base_model):
 
 	def __init__(self, hid_org2new, iname2iid, datapath):
 		self.hid_org2new = hid_org2new
@@ -35,10 +35,6 @@ class classify_model(base_model):
 	def train(self, opt='freq'):
 		# [h*i] item occurence total
 		hi_total=[]
-		if opt=='wrate':
-			hi_total=[None]*len(hid_org2new)
-			for hid in self.hid_org2new.inverse:
-				hi_total[hid] = [0]*len(self.iname2iid)
 
 		print self.__class__.__name__ + " train(): "
 		for match_file_name in tqdm(os.listdir(self.datapath)):
@@ -75,3 +71,5 @@ class classify_model(base_model):
 		tki = topk_index(hifreq, k)
 		#print "recommended length: " + str(len(tki))
 		return tki
+
+	

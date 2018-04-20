@@ -31,15 +31,6 @@ def initializer(func):
 
 	return wrapper
 
-def lst_id_org2new(id_lst, id_org2new):
-	return [id_org2new[i] for i in id_lst]
-
-def dict_id_org2new(id_dict, id_org2new):
-	new_dict = {}
-	for k, v in id_dict.iteritems():
-		id_dict[id_org2new[k]] = [id_org2new[i] for i in v]
-	return new_dict
-
 def topk_index(arr, k):
 	arr = np.array(arr)
 	return arr.argsort()[-k:][::-1]

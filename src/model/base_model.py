@@ -1,3 +1,9 @@
+# improvements:
+# 1. classify into: early(<1000), mid term(<3000), final(>=3000), assistance(dust, ward)
+# 2. determine a threshold, items with freq above which should be recommended
+# 2. determine a number for each hero for each category and recommend such many items for each category
+# 3. 
+# 4. add the td based deviation
 import json
 import os
 import numpy as np
