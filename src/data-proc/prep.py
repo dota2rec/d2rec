@@ -85,18 +85,23 @@ class raw_data(object):
 	def get_all_hero_item_info(self):
 		return self.hero_name2id, self.hid_org2new, self.item_name2id, self.item_cost, self.iid_org2new
 
+	def print_item_table(self):
+		print "name\t org_id\t new_id"
+		for name, new_id in self.item_name2id.iteritems():
+			print name+"\t"+str(self.iid_org2new.inverse[new_id])+"\t"+str(new_id)
+
 def test():
 	alldata = raw_data(proj_root)
 	hero_name2id, hid_org2new, item_name2id, item_cost, iid_org2new \
 		= alldata.prepare_hero_item_info(proj_root)
-	print "hero bidict:"
-	hero_name2id.__print__()
-	print ""
-	hid_org2new.__print__()
+	#print "hero bidict:"
+	#hero_name2id.__print__()
+	#print ""
+	#hid_org2new.__print__()
 
-	print "item bidict:"
-	item_name2id.__print__()
-	print item_cost
-	iid_org2new.__print__()
+	#print "item bidict:"
+	#item_name2id.__print__()
+	#print item_cost
+	#iid_org2new.__print__()
 
 test()

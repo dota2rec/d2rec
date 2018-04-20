@@ -10,7 +10,8 @@ from utils import dict_id_org2new
 class item_class:
 
 	# transformed consume iids
-	consume_iids = [4, 5, 6, 7, 8, 9, 10, 87, 145, 151, 173, 174]
+	#consume_iids = [4, 5, 6, 7, 8, 9, 10, 87, 145, 151, 173, 174]
+	consume_iids = [216,40,42,43,218,44,241,257,265,237,38,39]
 
 	@initializer
 	def __init__(self, iname2iid, iid2name):
@@ -22,11 +23,11 @@ class item_class:
 		self.syn_iid_child = dict_id_org2new(syn_iid_child)
 
 		# new consume_iids after continuous assignment
-		self.consume_iids = [216,40,42,43,218,44,241,257,265,237,38,39]
+		# enchanted mango(4), dust(5), 
 		#print "original consume_iids: "
 		#print consume_iids
 
-		self.consume_iids = lst_id_org2new(consume_iids)
+		self.consume_iids_new = lst_id_org2new(consume_iids)
 		#print "transformed consume_iids"
 		#print consume_iids
 
@@ -52,6 +53,9 @@ class item_class:
 	def is_consume(iid):
 	    return (iid in item_class.consume_iids)
 	    #return (iname2iid[iname] in consume_iids)
+	
+	def is_consume_new(self, new_iid):
+	    return (iid in self.consume_iids_new)
 	
 	@staticmethod
 	def is_not_consider(iname, iid):
