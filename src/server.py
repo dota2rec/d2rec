@@ -41,31 +41,33 @@ def compute_items():
     if request_data is None:
         return response_error()
 
+    iid_new2org = { v: k for k, v in rdata.iid_org2new.items() }
+    print iid_new2org
+
     team_recommendations = {
-        hero['id']: bmodel.rec(hero['id'], 10).tolist()
+        hero['id']: [iid_new2org[iid] for iid in bmodel.rec(rdata.hid_org2new[hero['id']], 10).tolist()]
         for hero in request_data['heroes']['team']
     }
 
     enemy_recommendations = {
-        hero['id']: bmodel.rec(hero['id'], 10).tolist()
+        hero['id']: [iid_new2org[iid] for iid in bmodel.rec(rdata.hid_org2new[hero['id']], 10).tolist()]
         for hero in request_data['heroes']['enemy']
     }
 
-    print team_recommendations
     return response_ok({
         'team': team_recommendations,
         'enemy': enemy_recommendations
     })
-	
+
 def formatOutput(string_list):
 
 	return "Hellow World"
 
-@app.route("/api/<match_id>", methods=['GET'])	
-def getResults(match_id):    
+@app.route("/api/<match_id>", methods=['GET'])
+def getResults(match_id):
     evaluator = eva(rdata)
     string_list = evaluator.nec_eva(proj_root+DATA_DIR, bmodel)
     return formatOutput(string_list)
-	
+
 if __name__ == "__main__":
 	app.run(threaded=True)
