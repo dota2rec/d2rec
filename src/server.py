@@ -56,6 +56,10 @@ def get_recommendations(heroes):
         results[hero['id']] = item_ord_new_id_list
     return results
 
+@app.route("/api/test", methods=['GET'])
+def test():
+    return 'appears to be running'
+
 @app.route("/api/compute_items", methods=['POST'])
 def compute_items():
     request_data = request.get_json()
@@ -93,4 +97,4 @@ def getResults(match_id):
     return formatOutput(string_list)
 
 if __name__ == "__main__":
-	app.run(threaded=True)
+	app.run(host= '0.0.0.0', threaded=True)
