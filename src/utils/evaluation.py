@@ -12,8 +12,7 @@ sys.path.insert(0, proj_root + 'src/bean/')
 from utils import team_purchase_sim_calc
 from item import item_class as iclass
 
-if 'PROD' in os.environ:
-	print 'is prod!!!'
+if 'PROD' not in os.environ:
 	from viz import cdf_plot
 	from viz import bar_plot
 
@@ -103,7 +102,7 @@ class eva:
 		print "bins: "
 		print x
 
-		if 'PROD' in os.environ:
+		if 'PROD' not in os.environ:
 			bar_plot(x, y)
 
 	# returns:

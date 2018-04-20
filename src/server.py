@@ -3,6 +3,7 @@ from flask_cors import CORS
 import json
 import random
 import sys
+import daemon
 
 proj_root = '../'
 sys.path.insert(0, proj_root + 'src/data-proc/')
@@ -96,5 +97,5 @@ def getResults(match_id):
     string_list = evaluator.nec_eva(proj_root+DATA_DIR, bmodel)
     return formatOutput(string_list)
 
-if __name__ == "__main__":
+with daemon.DaemonContext():
 	app.run(host= '0.0.0.0', threaded=True)
