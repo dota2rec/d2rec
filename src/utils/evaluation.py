@@ -2,7 +2,7 @@ import sys
 import os
 import json
 import numpy as np
-import matplotlib.pyplot as plt
+import os
 from tqdm import tqdm
 
 proj_root = '../../'
@@ -11,8 +11,11 @@ sys.path.insert(0, proj_root + 'src/bean/')
 
 from utils import team_purchase_sim_calc
 from item import item_class as iclass
-from viz import cdf_plot
-from viz import bar_plot
+
+if 'PROD' in os.environ:
+	print 'is prod!!!'
+	from viz import cdf_plot
+	from viz import bar_plot
 
 def get_two_teams(data):
 	# assumes: the first 5 is radiant hero
@@ -33,7 +36,7 @@ class eva:
 	# assumes: we have tot_count[h] that stores the avg total "vital" item purchased by hero h
 	# assumes: dummy_is_vital(iid)
 	# necissity evaluation
-	# calculating probability 
+	# calculating probability
 	# returns: a vector that records the similarity in items of winning team of each match
 	def nec_eva(self, fpath, model):
 		print "necissity evaluation: "
@@ -49,7 +52,7 @@ class eva:
 			if len(hero_vitem) > 0:
 				sim=team_purchase_sim_calc(self.iname2iid.inverse, hero_vitem, rec_vitem, sim_func='exist_in_rec')
 				#print "rec-actual item purchase similarity of match " + str(fname) + ": " + str(sim)
-				
+
 				sim_vec.append(sim)
 				if not np.isnan(sim):
 					sim_sum=(sim_sum*mcount+sim)/(mcount+1)
@@ -93,13 +96,15 @@ class eva:
 			new_tot = y_tot[index]+1
 			y[index] = (y[index]*y_tot[index]+win)/(float(new_tot))
 			y_tot[index] = new_tot
-		print "percentage: " 
+		print "percentage: "
 		print y
 		print "sample count: "
 		print y_tot
 		print "bins: "
 		print x
-		bar_plot(x, y)
+
+		if 'PROD' in os.environ:
+			bar_plot(x, y)
 
 	# returns:
 	# 1. hero_vitem: actual [hero*{item:count}]
@@ -136,17 +141,17 @@ class eva:
 			#print "recommended: "
 			#rec_name=[self.iname2iid.inverse[iid] for iid in rec]
 			#print rec_name
-			#print ""	
+			#print ""
 		return hero_vitem, rec_vitem
-	
+
 	# two evaluation plots:
 	# 1. similarity distribution in all winning teams
 	# 2. winning rate distribution in all similarity conditions
 
 	# TODOs
 	# 3. how much similarity can we say that the hero followed the recommended item
-	# 4. inherent similarity: how much similarity in item purchase does a hero has 
+	# 4. inherent similarity: how much similarity in item purchase does a hero has
 	# in all conditions?
-	
+
 
 	# weighting
