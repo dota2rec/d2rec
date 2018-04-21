@@ -152,7 +152,7 @@ class eva:
 			# rec with new interface
 
 
-			rec=model.rec(hid, len(vitem), plist, elist)
+			rec=model.rec(hid, len(vitem), plist, elist)['basic']
 			rec_vitem.append(rec)
 			# print recommended items
 			#print "recommended: "

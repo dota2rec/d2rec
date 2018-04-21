@@ -18,7 +18,7 @@ class item_class:
 	# ward_dispenser	218
 
 
-	def __init__(self, iname2iid, iid2name, iid_org2new):
+	def __init__(self, iname2iid, iid2name, iid_org2new, icost):
 		self.iid_org2new = iid_org2new
 		#print "item_class initializer: "
 		self.syn_iids = [121,123,98,250,252,263,104,141,145,147,110,249,154,158,164,235,185,229,196,242,190,231,206,208,210,212,79,81,90]
@@ -44,6 +44,9 @@ class item_class:
 
 		self.final_iids = [160, 196, 48, 50, 106, 119, 121, 123, 96, 250, 252, 100, 232, 263, 104, 108, 141, 145, 147, 223, 225, 256, 259, 110, 112, 114, 116, 139, 151, 249, 154, 156, 158, 164, 172, 174, 176, 178, 235, 185, 229, 196, 242, 127, 133, 135, 137, 168, 190, 231, 206, 239, 208, 210, 212, 214, 63, 81, 90, 1, 247, 65, 36, 254, 71]
 		self.final_iids = self.lst_id_org2new(self.final_iids)
+
+		self.icost = icost
+		self.assist_iids = []
 		pass
 
 	@staticmethod
@@ -91,3 +94,15 @@ class item_class:
 					new_child.append(self.iid_org2new[i])
 			new_dict[self.iid_org2new[k]] = new_child
 		return new_dict
+
+	def emfa_freq_classify(iid, opt='cost'):
+		if iid in assist_iids:
+			return "Assist"
+
+		cost = self.icost[item_id2name.inverse[iid]]
+		if cost > 3500:
+			return "Final"
+		elif cost > 1000:
+			return "Mid"
+		else:
+			return "Early" 

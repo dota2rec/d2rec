@@ -79,7 +79,7 @@ class raw_data(object):
 
 		hero_name2id, hid_org2new = self.build_hname2hid_map_reindex(hero_list)
 		item_name2id, item_cost, iid_org2new = self.build_iname2iid_map_reindex(item_list)
-		ihelper = iclass(item_name2id, item_name2id.inverse, iid_org2new)
+		ihelper = iclass(item_name2id, item_name2id.inverse, iid_org2new, item_cost)
 		
 		return hero_name2id, hid_org2new, item_name2id, item_cost, iid_org2new, ihelper
 
