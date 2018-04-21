@@ -26,9 +26,9 @@ class base_model:
 	WIN_SCORE = 1.0
 	LOSE_SCORE = 0.1
 
-	def __init__(self, hid_org2new, iname2iid, datapath):
-		self.hid_org2new = hid_org2new
-		self.iname2iid = iname2iid
+	def __init__(self, rdata, datapath):
+		self.hid_org2new = rdata.hid_org2new
+		self.iname2iid = rdata.item_name2id
 		self.datapath = datapath
 
 		hcount = self.hid_org2new.len()
