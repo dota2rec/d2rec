@@ -90,15 +90,15 @@ def team_purchase_sim_calc(iid2name, hp, hp_rec, norm=False, sim_func='cosine', 
 			sim_vec.append(sim)
 	elif sim_func == 'exist_in_rec':
 		for (h, hpr) in zip(hp, hp_rec):
-			#print h
-			#print hpr
-			# item purchase counter to feature vector
-			success = 0
-			for rec in hpr:
-				iname = iid2name[rec]
-				if iname in h:
-					success += 1
-			sim_vec.append((float(success)/len(h)))
+			if len(h)!=0:
+				#print hpr
+				# item purchase counter to feature vector
+				success = 0
+				for rec in hpr:
+					iname = iid2name[rec]
+					if iname in h:
+						success += 1
+				sim_vec.append((float(success)/len(h)))
 	else:
 		raise Exception("No similarity function " + sim_func + " is defined!")
 

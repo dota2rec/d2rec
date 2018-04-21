@@ -32,10 +32,7 @@ class item_class:
 		# new consume_iids after continuous assignment
 		#print "original consume_iids: "
 		#print consume_iids
-
-		print item_class.consume_iids
 		self.consume_iids_new = self.lst_id_org2new(item_class.consume_iids)
-		print self.consume_iids_new
 		#print "transformed consume_iids"
 		#print consume_iids
 
@@ -62,16 +59,16 @@ class item_class:
 	    return (iid in item_class.consume_iids)
 	    #return (iname2iid[iname] in consume_iids)
 	
-	def is_consume_new(self, new_iid):
-	    return (iid in self.consume_iids_new)
-	
+	def is_consume_new(self, iname):
+		return (iname2iid[iname] in self.consume_iids_new)
+
 	@staticmethod
 	def is_not_consider(iname, iid):
 	    return (item_class.is_recipe(iname) or item_class.is_upgrade(iname) or item_class.is_consume(iid))
 
 	def is_not_consider_new(iname, new_iid):
-		return (self.is_recipe(iname) or self.is_upgrade(iname) or self.is_consume_new(new_iid))
-
+		return (self.is_recipe(iname) or self.is_upgrade(iname) or self.is_consume_new(iname))
+		
 	def item_name2id(iname):
 		return iname2iid[iname]
 

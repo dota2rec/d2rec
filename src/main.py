@@ -24,14 +24,14 @@ TEST_DIR = 'mini/'
 def evaluation():
 	rdata = raw_data(proj_root)
 	# base model prediction
-	model = base_model(rdata.hid_org2new, rdata.item_name2id, (proj_root + DATA_DIR))
-	model.train()
+	#model = base_model(rdata.hid_org2new, rdata.item_name2id, (proj_root + DATA_DIR))
+	#model.train()
 	# classify model prediction
 	#model = classify_model(rdata.hid_org2new, rdata.item_name2id, (proj_root + DATA_DIR))
 	#model.train()
 	# dummy model recommendation
-	#model = dummy_model(rdata.hid_org2new, rdata.item_name2id, (proj_root + DATA_DIR))
-	#model.train(opt='wrate')
+	model = dummy_model(rdata.hid_org2new, rdata.item_name2id, (proj_root + DATA_DIR))
+	model.train(opt='wrate')
 
 	evaluator = eva(rdata)
 	sim_vec = evaluator.nec_eva(proj_root+TEST_DIR, model)
@@ -51,4 +51,4 @@ def test():
 	#for iid in consume_iids:
 	#	print rdata.item_name2id.inverse[iid] + "\t" +str(iid) + "\t" + str(rdata.iid_org2new.inverse[iid])
 
-test()
+evaluation()

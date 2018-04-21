@@ -22,25 +22,25 @@ class raw_data(object):
 	# 1: name2id map
 	# 2: orgid2newid map
 	def build_hname2hid_map_reindex(self, data):
-	    hid_data = bdict()
-	    hid_org2new = bdict()
-	    ignore = 0
-	    for i in range(0, len(data)):
-	        # substitute prefix part
-	        name = re.sub('(npc_dota_hero_|item_)', '', data[i]['name'])
-	        hid = data[i]['id']
-	        # not repeated item/hero
-	        if name not in hid_data:
-	            # 1. remove recipe item
-	            # 2. remove consume item
-	            # 3. remove upgraded versions of an item
-	            newid = i - ignore
-	            hid_data[name] = newid
-	            hid_org2new[hid] = newid
-	        else:
-	            print "ignored hero: " + str(name) + "\t" + str(iid)
-	            ignore += 1
-	    return hid_data, hid_org2new
+		hid_data = bdict()
+		hid_org2new = bdict()
+		ignore = 0
+		for i in range(0, len(data)):
+			# substitute prefix part
+			name = re.sub('(npc_dota_hero_|item_)', '', data[i]['name'])
+			hid = data[i]['id']
+			# not repeated item/hero
+			if name not in hid_data:
+				# 1. remove recipe item
+				# 2. remove consume item
+				# 3. remove upgraded versions of an item
+				newid = i - ignore
+				hid_data[name] = newid
+				hid_org2new[hid] = newid
+			else:
+				print "ignored hero: " + str(name) + "\t" + str(iid)
+				ignore += 1
+		return hid_data, hid_org2new
 
 	def build_iname2iid_map_reindex(self, data):
 		name2iid = bdict()
