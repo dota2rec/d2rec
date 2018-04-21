@@ -26,12 +26,12 @@ class wei_model(base_model):
     SUPPORT_WIN_SCORE = 2.0
     SUPPORT_LOSE_SCORE = 0.8
         
-    def __init__(self, hid_org2new, iname2iid,item_cost,syn_iid_child, datapath):
-        self.hid_org2new = hid_org2new
-        self.iname2iid = iname2iid
-        self.item_cost = item_cost
+    def __init__(self, rdata, datapath):
+        self.hid_org2new = rdata.hid_org2new
+        self.iname2iid = rdata.iname2iid
+        self.item_cost = rdata.item_cost
         self.datapath = datapath
-        self.syn_iid_child = syn_iid_child
+        self.syn_iid_child = rdata.syn_iid_child
                 
         hcount = self.hid_org2new.len()
         icount = self.iname2iid.len()
