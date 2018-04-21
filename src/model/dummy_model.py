@@ -86,4 +86,4 @@ class dummy_model(base_model):
 		hifreq = self.basic_freq[h]
 		tki = topk_index(hifreq, k)
 		#print "recommended length: " + str(len(tki))
-		return tki
+		return {'basic':tki}
