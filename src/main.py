@@ -30,7 +30,7 @@ def evaluation():
 	#model = classify_model(rdata.hid_org2new, rdata.item_name2id, (proj_root + DATA_DIR))
 	#model.train()
 	# dummy model recommendation
-	model = dummy_model(rdata.hid_org2new, rdata.item_name2id, (proj_root + DATA_DIR))
+	model = dummy_model(rdata, (proj_root + DATA_DIR))
 	model.train(opt='wrate')
 
 	evaluator = eva(rdata)
