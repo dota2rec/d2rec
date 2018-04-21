@@ -15,6 +15,17 @@ from viz import cdf_plot
 from viz import bar_plot
 
 
+def get_two_teams(data):
+	# assumes: the first 5 is radiant hero
+	# get the winner players
+	if(data['radiant_win']):
+		wplayers=data['players'][0:5]
+		lplayers=data['players'][5:10]
+	else:
+		wplayers=data['players'][5:10]
+		lplayers=data['players'][0:5]
+	return wplayers, lplayers
+
 class eva_sw:
     def __init__(self, rdata):
         self.iname2iid = rdata.item_name2id
@@ -35,18 +46,10 @@ class eva_sw:
         sim_vec = []
         for fname in tqdm(os.listdir(fpath)):
             data = json.load(open(fpath + fname))
-            wplayers = []
-            lplayers = []
-            # assumes: the first 5 is radiant hero
-            # get the winner players
-            if (data['radiant_win']):
-                wplayers = data['players'][0:5]
-                lplayers = data['players'][5:10]
-            else:
-                wplayers = data['players'][5:10]
-                lplayers = data['players'][0:5]
+            wplayers, lplayers = get_two_teams(data)
 
-            hero_vitem, rec_vitem = self.get_team_actual_rec_item(wplayers, lplayers, model)
+
+            hero_vitem, rec_vitem = self.get_team_actual_rec_item(wplayers, model,enemies = lplayers )
 
             if len(hero_vitem) > 0:
                 sim = team_purchase_sim_calc(self.iname2iid.inverse, hero_vitem, rec_vitem, sim_func='exist_in_rec')
@@ -69,24 +72,15 @@ class eva_sw:
 
         for fname in tqdm(os.listdir(fpath)):
             data = json.load(open(fpath + fname))
-            wplayers = []
-            lplayers = []
-            # assumes: the first 5 is radiant hero
-            # get the winner players
-            if (data['radiant_win']):
-                wplayers = data['players'][0:5]
-                lplayers = data['players'][5:10]
-            else:
-                wplayers = data['players'][5:10]
-                lplayers = data['players'][0:5]
+            wplayers, lplayers = get_two_teams(data)
 
             # similarity of the winning team
-            hero_vitem, rec_vitem = self.get_team_actual_rec_item(wplayers,lplayers, model)
+            hero_vitem, rec_vitem = self.get_team_actual_rec_item(wplayers, model,enemies = lplayers)
             if len(hero_vitem) > 0:
                 sim = team_purchase_sim_calc(self.iname2iid.inverse, hero_vitem, rec_vitem, sim_func='exist_in_rec')
             result.append([sim, 1])
             # similarity of the losing team
-            hero_vitem, rec_vitem = self.get_team_actual_rec_item(lplayers,lplayers, model)
+            hero_vitem, rec_vitem = self.get_team_actual_rec_item(lplayers, model,enemies = lplayers)
             if len(hero_vitem) > 0:
                 sim = team_purchase_sim_calc(self.iname2iid.inverse, hero_vitem, rec_vitem, sim_func='exist_in_rec')
             result.append([sim, 0])
@@ -118,15 +112,32 @@ class eva_sw:
     # returns:
     # 1. hero_vitem: actual [hero*{item:count}]
     # 2. rec_vitem: recommended [item]
-    def get_team_actual_rec_item(self, players, lplayers, model):
+    def get_team_actual_rec_item(self, players, model,enemies = None):
         hero_vitem = []
         rec_vitem = []
+        
+        plist = []
+        for p in players:
+            if p['hero_id'] != None:
+                hid=self.hid_org2new[p['hero_id']]
+		plist.append(hid)
+	    else:
+		    continue
+	elist=[]
+	for p in enemies:
+	    if p['hero_id'] != None:
+		hid=self.hid_org2new[p['hero_id']]
+		elist.append(hid)
+	    else:
+		continue
+        
         for p in players:
             # vital items that we consider
             vitem = dict()
             purchase = p['purchase']
             if p['hero_id'] != None:
                 hid = self.hid_org2new[p['hero_id']]
+               
             else:
                 continue
             # print "purchase length of hero " + str(hid) + ": " + str(len(purchase))
@@ -141,8 +152,8 @@ class eva_sw:
     
  #           hero_vitem.append(vitem)
             #print vitem,vitem.keys()
-            print "before"
-            print vitem.keys()
+            #print "before"
+            #print vitem
             temp = vitem.copy()
             h_vitem = dict()
             for itemname in vitem.keys():
@@ -155,13 +166,13 @@ class eva_sw:
             for it in temp.keys():
                 if temp[it] != 0:
                     h_vitem[it] = temp[it]
-                    
+            #print "reuslt"
+            #print temp
             hero_vitem.append(h_vitem)
             result_id = []
             for item in h_vitem.keys():
                 result_id.append(self.iname2iid[item])
-            print "reuslt"
-            print h_vitem
+            
             
             
         # print self.hname2hid.inverse[hid]
@@ -171,15 +182,15 @@ class eva_sw:
         # rec with new interface
 
 
-            rec = model.rec(hid, len(vitem), players, lplayers)
+            rec = model.rec(hid, int(1.5*len(vitem)), plist, elist)
             # rec=base_rec_h(hid, model, len(vitem))
             rec_vitem.append(rec)
             list_predict = []
             for pre in rec:
                 list_predict.append(self.iname2iid.inverse[pre])
-            print "predict"
-            print list_predict
-            print
+            #print "predict"
+            #print list_predict
+            #print
             
     # print recommended items
     # print "recommended: "

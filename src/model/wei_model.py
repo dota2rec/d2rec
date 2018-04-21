@@ -21,9 +21,9 @@ from item import item_class
 # output is:
 # self.basic_freq = [h*i]
 class wei_model(base_model):
-    WIN_SCORE = 1.5
-    LOSE_SCORE = 0.4
-    SUPPORT_WIN_SCORE = 2.0
+    WIN_SCORE = 2.0
+    LOSE_SCORE = 0.3
+    SUPPORT_WIN_SCORE = 4.0
     SUPPORT_LOSE_SCORE = 0.8
         
     def __init__(self, rdata, datapath):
@@ -40,6 +40,7 @@ class wei_model(base_model):
         self.support_from_ally_freq = np.zeros((hcount,hcount,icount))
         #count what item your enemy purchase
         self.support_from_ememy_freq = np.zeros((hcount,hcount,icount))
+        self.hero_frequence = np.zeros(hcount)
         pass
     
         # train basic freq model using json match records data in 'datapath'
@@ -66,6 +67,7 @@ class wei_model(base_model):
             for player in match_data['players']:
                 if player['hero_id'] != None and player['purchase'] != None:
                     hero_id = self.hid_org2new[player['hero_id']]
+                    self.hero_frequence[hero_id] += 1
                 else:
                     continue
                 purchases = player['purchase']
@@ -82,24 +84,22 @@ class wei_model(base_model):
                                                 
                         if item_count == None:
                             item_count = 0
-                        item_vec[item_id] = item_vec[item_id] + 1
+                        item_vec[item_id] = item_count
                         
                         if item_id in self.syn_iid_child.keys():
                             for it in self.syn_iid_child[item_id]:
-                                if item_vec[it] >0:
+                                if item_vec[it] > 0:
                                     item_vec[it] = item_vec[it] -1
                                     
                                 
-               
-                
-                hero_freq = self.basic_freq[hero_id]
+
                 if win:
-                    hero_freq += item_vec * wei_model.WIN_SCORE
+                    self.basic_freq[hero_id] += item_vec * wei_model.WIN_SCORE
                 else:
-                    hero_freq += item_vec * wei_model.LOSE_SCORE
+                    self.basic_freq[hero_id] += item_vec * wei_model.LOSE_SCORE
 
                     
-                ####### Here I directly use vec_item and if it's not the vector of item frequence for this player,plesse modify it
+                ####### 
                 vector = item_vec.copy()
                 if hero_id in list_radiant:
                     for id in list_radiant:
@@ -170,22 +170,29 @@ class wei_model(base_model):
         list_1000_2800 =[]
         list_2800 = []
         for index in tki:
-            if item_id2cost[index] < 1000 and item_id2cost[index] > 60  and item_id2cost[index]and count_1000 < 7:
+            if item_id2cost[index] < 1000 and item_id2cost[index] > 185  and item_id2cost[index]and count_1000 < 7 and hifreq[index]/self.hero_frequence[h] > 0.5:
                 list_1000.append(index)
                 count_1000 +=1
-            if item_id2cost[index] >= 1000 and item_id2cost[index] < 2800 and count_1000_2800 < 5:
+            if item_id2cost[index] >= 1000 and item_id2cost[index] < 3000 and count_1000_2800 < 7 and hifreq[index]/self.hero_frequence[h] > 0.5:
                 list_1000_2800.append(index)
                 count_1000_2800 +=1
-            if item_id2cost[index] >= 2800 and count_2800 < 9:
+            if item_id2cost[index] >= 3000 and count_2800 < 7 and hifreq[index]/self.hero_frequence[h] > 0.3:
                 list_2800.append(index)
                 count_2800 += 1
+        def cost(x):
+            return item_id2cost[x]
+        rec_dic = {}
+        rec_dic['basic'] = list_1000
+        rec_dic['intermediate'] = list_1000_2800
+        rec_dic['final'] = list_2800
         rec_list = list_1000 + list_1000_2800 + list_2800
+        rec_list = sorted(rec_list, key = cost)
         rec_array = np.asarray(rec_list)
         #print h
-        #print list_1000,list_1000_2800 ,list_2800
         
+        #print self.syn_iid_child 
     
-        return rec_list
+        return rec_dic
 
 
 
