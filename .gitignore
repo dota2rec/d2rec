@@ -1,3 +1,7 @@
+# mac specific
+.DS_Store
+*.ipynb
+
 # generated pdf
 *.pdf
 mini/

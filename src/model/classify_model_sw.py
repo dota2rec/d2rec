@@ -11,6 +11,7 @@ sys.path.insert(0, proj_root+'src/model/')
 from utils import initializer
 from utils import topk_index
 from base_model import base_model
+from item import item_class 
 
 # base model that only accumulates the frequence of item occuring
 # on heroes
@@ -18,16 +19,18 @@ from base_model import base_model
 # hid_org2new, iname2iid mapping set
 # output is:
 # self.basic_freq = [h*i]
-class classify_model(base_model):
-    WIN_SCORE = 1.2
-    LOSE_SCORE = 0.8
+class classify_model_sw(base_model):
+    WIN_SCORE = 1.0
+    LOSE_SCORE = 0.1
     SUPPORT_WIN_SCORE = 2.0
     SUPPORT_LOSE_SCORE = 0.8
         
-    def __init__(self, hid_org2new, iname2iid, datapath):
+    def __init__(self, hid_org2new, iname2iid,item_cost,syn_iid_child, datapath):
         self.hid_org2new = hid_org2new
         self.iname2iid = iname2iid
+        self.item_cost = item_cost
         self.datapath = datapath
+        self.syn_iid_child = syn_iid_child
                 
         hcount = self.hid_org2new.len()
         icount = self.iname2iid.len()
@@ -68,7 +71,8 @@ class classify_model(base_model):
                                 
                 win = player['isRadiant'] == player['radiant_win']
                 # vectorize frequency
-                item_vec = [0]*len(self.iname2iid)
+#                item_vec = [0]*len(self.iname2iid)
+                item_vec = np.zeros(len(self.iname2iid))
                 for item_name in purchases:
                     # if we consider this item
                     if item_name in self.iname2iid:
@@ -78,9 +82,18 @@ class classify_model(base_model):
                         if item_count == None:
                             item_count = 0
                         item_vec[item_id] = int(item_count)
-                                                
-                        hero_freq = self.basic_freq[hero_id]
-                        hero_freq[item_id] += base_model.WIN_SCORE if win else base_model.LOSE_SCORE
+                        
+                        if item_id in self.syn_iid_child.keys():
+                            for it in self.syn_iid_child[item_id]:
+                                if item_vec[it] >0:
+                                    item_vec[it] = item_vec[it] -1
+    
+                hero_freq = self.basic_freq[hero_id]
+                if win:
+                    hero_freq += item_vec * classify_model_sw.WIN_SCORE
+                else:
+                    hero_freq += item_vec * classify_model_sw.LOSE_SCORE
+
                     
                 ####### Here I directly use vec_item and if it's not the vector of item frequence for this player,plesse modify it
                 vector = item_vec.copy()
@@ -88,39 +101,87 @@ class classify_model(base_model):
                     for id in list_radiant:
                         if id != hero_id:
                             if win:
-                                support_from_ally_freq[id][hero_id] += vector * classify_model.SUPPORT_WIN_SCORE
+                                self.support_from_ally_freq[id][hero_id] += vector * classify_model_sw.SUPPORT_WIN_SCORE
                             else:
-                                support_from_ally_freq[id][hero_id] += vector * classify_model.SUPPORT_LOSE_SCORE
+                                self.support_from_ally_freq[id][hero_id] += vector * classify_model_sw.SUPPORT_LOSE_SCORE
                     for id in list_dire:
                         if win:
-                            support_from_ememy_freq[id][hero_id] += vector * SUPPORT_LOSE_SCORE
+                            self.support_from_ememy_freq[id][hero_id] += vector * classify_model_sw.SUPPORT_LOSE_SCORE
                         else:
-                            support_from_ememy_freq[id][hero_id] += vector * SUPPORT_WIN_SCORE
+                            self.support_from_ememy_freq[id][hero_id] += vector * classify_model_sw.SUPPORT_WIN_SCORE
                 else:
                     for id in list_dire:
                         if id != hero_id:
                             if win:
-                                support_from_ally_freq[id][hero_id] += vector * SUPPORT_WIN_SCORE
+                                self.support_from_ally_freq[id][hero_id] += vector * classify_model_sw.SUPPORT_WIN_SCORE
                             else:
-                                support_from_ally_freq[id][hero_id] += vector * SUPPORT_LOSE_SCORE
+                                self.support_from_ally_freq[id][hero_id] += vector * classify_model_sw.SUPPORT_LOSE_SCORE
                     for id in list_radiant:
                         if win:
-                            support_from_ememy_freq[id][hero_id] += vector * SUPPORT_LOSE_SCORE
+                            self.support_from_ememy_freq[id][hero_id] += vector * classify_model_sw.SUPPORT_LOSE_SCORE
                         else:
-                            support_from_ememy_freq[id][hero_id] += vector * SUPPORT_WIN_SCORE
+                            self.support_from_ememy_freq[id][hero_id] += vector * classify_model_sw.SUPPORT_WIN_SCORE
 
                 ##############################
                 
                 
                 # use item_vec here for stats purpose per hero in a match
             match_file.close()
+
+    def get_item_id2cost(self):
+        item_id2cost = {}
+        for item in self.item_name2id.keys():
+            item_id2cost[self.item_name2id[item]] = self.item_cost[item]                       
+        return item_id2cost
+
+    
 # @h: the hero id
 # @k: how many items to return
-def rec(self, h, k):
-    hifreq = self.basic_freq[h]
-        tki = topk_index(hifreq, k)
-            #print "recommended length: " + str(len(tki))
-            return tki
+    def rec(self, h, k,ally_list,enemy_list):
+        hifreq = self.basic_freq[h].copy()
+        for hero in ally_list:
+            hid = self.hid_org2new[hero['hero_id']]
+            if hid != h:
+                hifreq += self.support_from_ally_freq[hid][h]
+        for hero in enemy_list:
+            hid = self.hid_org2new[hero['hero_id']]
+            hifreq += self.support_from_ememy_freq[hid][h]
+
+        item_id2cost = {}
+        #print self.iname2iid
+        #print self.item_cost
+        for item in self.iname2iid.keys():
+            item_id2cost[self.iname2iid[item]] = self.item_cost[item]
+        #print item_id2cost
+            
+        
+        tki = topk_index(hifreq, int(2.0*k))
+ 
+        
+        count_1000 = 0
+        count_1000_2800 = 0
+        count_2800 = 0
+        list_1000 = []
+        list_1000_2800 =[]
+        list_2800 = []
+        for index in tki:
+            if item_id2cost[index] < 1000 and count_1000 < int(0.45*k):
+                list_1000.append(index)
+                count_1000 +=1
+            if item_id2cost[index] >= 1000 and item_id2cost[index] < 2800 and count_1000_2800 < int(0.4*k):
+                list_1000_2800.append(index)
+                count_1000_2800 +=1
+            if item_id2cost[index] >= 2800 and count_2800 <int(0.7 * k):
+                list_2800.append(index)
+                count_2800 += 1
+        rec_list = list_1000 + list_1000_2800 + list_2800
+        rec_array = np.asarray(rec_list)
+        print h,item_id2cost[162]
+        print tki
+        print list_1000,list_1000_2800 ,list_2800
+        
+    
+        return rec_array
 
 #	def calc_base_freq(hname2hid, iname2iid, consider_func='cost'):
 #		#hero_count = 1000
