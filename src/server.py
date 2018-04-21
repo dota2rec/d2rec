@@ -13,8 +13,6 @@ sys.path.insert(0, proj_root + 'src/utils/')
 
 from prep import raw_data
 from base_model import base_model
-from classify_model import classify_model
-from tdv_model import tdv_model
 from evaluation import eva
 
 DATA_DIR = 'data/'
@@ -71,7 +69,7 @@ def get_recommendations(heroes, enemy_heroes):
     for hero in heroes:
         item_ord_new_id_list = []
 
-        rec_item_ids = models[active_model_name].rec(rdata.hid_org2new[hero['id']], 10, team_hids, enemy_hids).tolist()
+        rec_item_ids = models[active_model_name].rec(rdata.hid_org2new[hero['id']], 10, team_hids, enemy_hids)
         print rec_item_ids
 
         for item_id in rec_item_ids:

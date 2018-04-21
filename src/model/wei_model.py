@@ -138,18 +138,17 @@ class wei_model(base_model):
             item_id2cost[self.item_name2id[item]] = self.item_cost[item]                       
         return item_id2cost
 
-    
 # @h: the hero id
 # @k: how many items to return
     def rec(self, h, k,ally_list,enemy_list):
         hifreq = self.basic_freq[h].copy()
         
-        for hero in ally_list:
-            hid = self.hid_org2new[hero['hero_id']]
+        for hid in ally_list:
+            #hid = self.hid_org2new[hero['hero_id']]
             if hid != h:
                 hifreq += self.support_from_ally_freq[hid][h]
-        for hero in enemy_list:
-            hid = self.hid_org2new[hero['hero_id']]
+        for hid in enemy_list:
+            #hid = self.hid_org2new[hero['hero_id']]
             hifreq += self.support_from_ememy_freq[hid][h]
         
 
@@ -187,6 +186,8 @@ class wei_model(base_model):
         
     
         return rec_list
+
+
 
 #	def calc_base_freq(hname2hid, iname2iid, consider_func='cost'):
 #		#hero_count = 1000
