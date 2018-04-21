@@ -1,6 +1,7 @@
 # mac specific
 .DS_Store
 *.ipynb
+./src/main.py
 
 # generated pdf
 *.pdf
@@ -9,6 +10,8 @@ data/
 test/
 data_small/
 test_small/
+data1/
+test1/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -111,3 +114,4 @@ ENV/
 
 # mypy
 .mypy_cache/
+*.json

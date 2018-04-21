@@ -17,7 +17,7 @@ from classify_model import classify_model
 from tdv_model import tdv_model
 from evaluation import eva
 
-DATA_DIR = 'data/'
+DATA_DIR = 'data1/'
 TEST_DIR = 'test/'
 
 rdata  = raw_data(proj_root)

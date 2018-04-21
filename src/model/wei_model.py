@@ -20,7 +20,7 @@ from item import item_class
 # hid_org2new, iname2iid mapping set
 # output is:
 # self.basic_freq = [h*i]
-class classify_model_sw(base_model):
+class wei_model(base_model):
     WIN_SCORE = 1.5
     LOSE_SCORE = 0.4
     SUPPORT_WIN_SCORE = 2.0
@@ -94,11 +94,10 @@ class classify_model_sw(base_model):
                 
                 hero_freq = self.basic_freq[hero_id]
                 if win:
-                    hero_freq += item_vec * classify_model_sw.WIN_SCORE
+                    hero_freq += item_vec * wei_model.WIN_SCORE
                 else:
-                    hero_freq += item_vec * classify_model_sw.LOSE_SCORE
+                    hero_freq += item_vec * wei_model.LOSE_SCORE
 
->>>>>>> 9341ac45f1ae90ff7d3b45ef0aac0b05448fb2c6
                     
                 ####### Here I directly use vec_item and if it's not the vector of item frequence for this player,plesse modify it
                 vector = item_vec.copy()
@@ -106,26 +105,26 @@ class classify_model_sw(base_model):
                     for id in list_radiant:
                         if id != hero_id:
                             if win:
-                                self.support_from_ally_freq[id][hero_id] += vector * classify_model_sw.SUPPORT_WIN_SCORE
+                                self.support_from_ally_freq[id][hero_id] += vector * wei_model.SUPPORT_WIN_SCORE
                             else:
-                                self.support_from_ally_freq[id][hero_id] += vector * classify_model_sw.SUPPORT_LOSE_SCORE
+                                self.support_from_ally_freq[id][hero_id] += vector * wei_model.SUPPORT_LOSE_SCORE
                     for id in list_dire:
                         if win:
-                            self.support_from_ememy_freq[id][hero_id] += vector * classify_model_sw.SUPPORT_LOSE_SCORE
+                            self.support_from_ememy_freq[id][hero_id] += vector * wei_model.SUPPORT_LOSE_SCORE
                         else:
-                            self.support_from_ememy_freq[id][hero_id] += vector * classify_model_sw.SUPPORT_WIN_SCORE
+                            self.support_from_ememy_freq[id][hero_id] += vector * wei_model.SUPPORT_WIN_SCORE
                 else:
                     for id in list_dire:
                         if id != hero_id:
                             if win:
-                                self.support_from_ally_freq[id][hero_id] += vector * classify_model_sw.SUPPORT_WIN_SCORE
+                                self.support_from_ally_freq[id][hero_id] += vector * wei_model.SUPPORT_WIN_SCORE
                             else:
-                                self.support_from_ally_freq[id][hero_id] += vector * classify_model_sw.SUPPORT_LOSE_SCORE
+                                self.support_from_ally_freq[id][hero_id] += vector * wei_model.SUPPORT_LOSE_SCORE
                     for id in list_radiant:
                         if win:
-                            self.support_from_ememy_freq[id][hero_id] += vector * classify_model_sw.SUPPORT_LOSE_SCORE
+                            self.support_from_ememy_freq[id][hero_id] += vector * wei_model.SUPPORT_LOSE_SCORE
                         else:
-                            self.support_from_ememy_freq[id][hero_id] += vector * classify_model_sw.SUPPORT_WIN_SCORE
+                            self.support_from_ememy_freq[id][hero_id] += vector * wei_model.SUPPORT_WIN_SCORE
 
                 ##############################
                 
@@ -187,7 +186,7 @@ class classify_model_sw(base_model):
         print list_1000,list_1000_2800 ,list_2800
         
     
-        return rec_array
+        return rec_list
 
 #	def calc_base_freq(hname2hid, iname2iid, consider_func='cost'):
 #		#hero_count = 1000
