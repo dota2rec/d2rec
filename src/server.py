@@ -36,8 +36,8 @@ for model_filename in os.listdir(MODEL_DIR):
         model_name = model_filename.split('.')[0]
         model_class = import_model_class_from_file(model_name)
 
-        model = model_class(rdata, (proj_root + DATA_DIR))
         print '---------- Training model: ' + model_name + '----------'
+        model = model_class(rdata, (proj_root + DATA_DIR))
         model.train()
 
         models[model_name] = model
@@ -62,13 +62,16 @@ def random_items():
     random.shuffle(dummy_item_ids)
     return dummy_item_ids[0:10]
 
-def get_recommendations(heroes):
+def get_recommendations(heroes, enemy_heroes):
     results = {}
+
+    team_hids = [h['id'] for h in heroes]
+    enemy_hids = [h['id'] for h in enemy_heroes]
 
     for hero in heroes:
         item_ord_new_id_list = []
 
-        rec_item_ids = models[active_model_name].rec(rdata.hid_org2new[hero['id']], 10).tolist()
+        rec_item_ids = models[active_model_name].rec(rdata.hid_org2new[hero['id']], 10, team_hids, enemy_hids).tolist()
         print rec_item_ids
 
         for item_id in rec_item_ids:
@@ -111,8 +114,8 @@ def compute_items():
     if request_data is None:
         return response_error()
 
-    team_recommendations = get_recommendations(request_data['heroes']['team'])
-    enemy_recommendations = get_recommendations(request_data['heroes']['enemy'])
+    team_recommendations = get_recommendations(request_data['heroes']['team'], request_data['heroes']['enemy'])
+    enemy_recommendations = get_recommendations(request_data['heroes']['enemy'], request_data['heroes']['team'])
 
     return response_ok({
         'team': team_recommendations,
