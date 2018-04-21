@@ -17,7 +17,7 @@ from classify_model import classify_model
 from tdv_model import tdv_model
 from evaluation import eva
 
-DATA_DIR = 'data1/'
+DATA_DIR = 'data/'
 TEST_DIR = 'test/'
 
 rdata  = raw_data(proj_root)
@@ -36,7 +36,7 @@ for model_filename in os.listdir(MODEL_DIR):
         model_name = model_filename.split('.')[0]
         model_class = import_model_class_from_file(model_name)
 
-        model = model_class(rdata.hid_org2new, rdata.item_name2id, (proj_root + DATA_DIR))
+        model = model_class(rdata, (proj_root + DATA_DIR))
         print '---------- Training model: ' + model_name + '----------'
         model.train()
 
