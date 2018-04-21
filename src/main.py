@@ -10,7 +10,6 @@ from viz import cdf_plot
 from base_model import base_model
 from dummy_model import dummy_model
 from evaluation import eva
-from item import item_class as iclass
 from wei_model import wei_model
 
 # production test

@@ -10,7 +10,6 @@ sys.path.insert(0, proj_root+'src/utils/')
 sys.path.insert(0, proj_root + 'src/bean/')
 
 from utils import team_purchase_sim_calc
-from item import item_class as iclass
 
 if 'PROD' not in os.environ:
 	from viz import cdf_plot

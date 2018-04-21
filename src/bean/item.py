@@ -1,12 +1,19 @@
 import sys
 import re
+from enum import Enum
 
 sys.path.insert(0, '../utils/')
 
 from utils import initializer
 
-class item_class:
+class iclass(Enum):
+	EARLY = "Early"
+	MID = "Mid"
+	FINAL = "Final"
+	ASSIST = "Assistance"
 
+
+class item:
 	# transformed consume iids
 	#consume_iids = [4, 5, 6, 7, 8, 9, 10, 87, 145, 151, 173, 174]
 	consume_iids = [216,40,42,43,218,44,241,257,265,237,38,39,46]
@@ -20,7 +27,7 @@ class item_class:
 
 	def __init__(self, iname2iid, iid2name, iid_org2new, icost):
 		self.iid_org2new = iid_org2new
-		#print "item_class initializer: "
+		#print "item initializer: "
 		self.syn_iids = [121,123,98,250,252,263,104,141,145,147,110,249,154,158,164,235,185,229,196,242,190,231,206,208,210,212,79,81,90]
 		self.syn_iids = self.lst_id_org2new(self.syn_iids)
 		
@@ -32,7 +39,7 @@ class item_class:
 		# new consume_iids after continuous assignment
 		#print "original consume_iids: "
 		#print consume_iids
-		self.consume_iids_new = self.lst_id_org2new(item_class.consume_iids)
+		self.consume_iids_new = self.lst_id_org2new(item.consume_iids)
 		#print "transformed consume_iids"
 		#print consume_iids
 
@@ -59,7 +66,7 @@ class item_class:
 	
 	@staticmethod
 	def is_consume(iid):
-	    return (iid in item_class.consume_iids)
+	    return (iid in item.consume_iids)
 	    #return (iname2iid[iname] in consume_iids)
 	
 	def is_consume_new(self, iname):
@@ -67,7 +74,7 @@ class item_class:
 
 	@staticmethod
 	def is_not_consider(iname, iid):
-	    return (item_class.is_recipe(iname) or item_class.is_upgrade(iname) or item_class.is_consume(iid))
+	    return (item.is_recipe(iname) or item.is_upgrade(iname) or item.is_consume(iid))
 
 	def is_not_consider_new(iname, new_iid):
 		return (self.is_recipe(iname) or self.is_upgrade(iname) or self.is_consume_new(iname))
@@ -97,12 +104,12 @@ class item_class:
 
 	def emfa_freq_classify(iid, opt='cost'):
 		if iid in assist_iids:
-			return "Assist"
+			return iclass.ASSIST
 
 		cost = self.icost[item_id2name.inverse[iid]]
 		if cost > 3500:
-			return "Final"
+			return iclass.FINAL
 		elif cost > 1000:
-			return "Mid"
+			return iclass.MID
 		else:
-			return "Early" 
+			return iclass.EARLY

@@ -8,7 +8,7 @@ sys.path.insert(0, proj_root + 'src/utils/')
 sys.path.insert(0, proj_root + 'src/bean/')
 
 from bidict import bdict
-from item import item_class as iclass
+from item import item as iclass
 
 class raw_data(object):
 	"""docstring for raw_data"""
@@ -93,7 +93,7 @@ class raw_data(object):
 
 def test():
 	alldata = raw_data(proj_root)
-	hero_name2id, hid_org2new, item_name2id, item_cost, iid_org2new, item_class \
+	hero_name2id, hid_org2new, item_name2id, item_cost, iid_org2new, ihelper \
 		= alldata.prepare_hero_item_info(proj_root)
 	#print "hero bidict:"
 	#hero_name2id.__print__()
