@@ -2,7 +2,7 @@ import sys
 import os
 import json
 import numpy as np
-import matplotlib.pyplot as plt
+import os
 from tqdm import tqdm
 
 proj_root = '../../'
@@ -11,8 +11,21 @@ sys.path.insert(0, proj_root + 'src/bean/')
 
 from utils import team_purchase_sim_calc
 from item import item_class as iclass
-from viz import cdf_plot
-from viz import bar_plot
+
+if 'PROD' not in os.environ:
+	from viz import cdf_plot
+	from viz import bar_plot
+
+def get_two_teams(data):
+	# assumes: the first 5 is radiant hero
+	# get the winner players
+	if(data['radiant_win']):
+		wplayers=data['players'][0:5]
+		lplayers=data['players'][5:10]
+	else:
+		wplayers=data['players'][5:10]
+		lplayers=data['players'][0:5]
+	return wplayers, lplayers
 
 class eva:
 	def __init__(self, rdata):
@@ -22,7 +35,7 @@ class eva:
 	# assumes: we have tot_count[h] that stores the avg total "vital" item purchased by hero h
 	# assumes: dummy_is_vital(iid)
 	# necissity evaluation
-	# calculating probability 
+	# calculating probability
 	# returns: a vector that records the similarity in items of winning team of each match
 	def nec_eva(self, fpath, model):
 		print "necissity evaluation: "
@@ -31,20 +44,14 @@ class eva:
 		sim_vec = []
 		for fname in tqdm(os.listdir(fpath)):
 			data=json.load(open(fpath+fname))
-			wplayers=[]
-			# assumes: the first 5 is radiant hero
-			# get the winner players
-			if(data['radiant_win']):
-				wplayers=data['players'][0:5]
-			else:
-				wplayers=data['players'][5:10]
+			wplayers, lplayers = get_two_teams(data)
 
-			hero_vitem, rec_vitem = self.get_team_actual_rec_item(wplayers, model)
+			hero_vitem, rec_vitem = self.get_team_actual_rec_item(wplayers, model, enemies=lplayers)
 
 			if len(hero_vitem) > 0:
 				sim=team_purchase_sim_calc(self.iname2iid.inverse, hero_vitem, rec_vitem, sim_func='exist_in_rec')
 				#print "rec-actual item purchase similarity of match " + str(fname) + ": " + str(sim)
-				
+
 				sim_vec.append(sim)
 				if not np.isnan(sim):
 					sim_sum=(sim_sum*mcount+sim)/(mcount+1)
@@ -61,23 +68,15 @@ class eva:
 
 		for fname in tqdm(os.listdir(fpath)):
 			data=json.load(open(fpath+fname))
-			wplayers=[]
-			# assumes: the first 5 is radiant hero
-			# get the winner players
-			if(data['radiant_win']):
-				wplayers=data['players'][0:5]
-				lplayers=data['players'][5:10]
-			else:
-				wplayers=data['players'][5:10]
-				lplayers=data['players'][0:5]
+			wplayers, lplayers = get_two_teams(data)
 
 			# similarity of the winning team
-			hero_vitem, rec_vitem = self.get_team_actual_rec_item(wplayers, model)
+			hero_vitem, rec_vitem = self.get_team_actual_rec_item(wplayers, model, enemies=lplayers)
 			if len(hero_vitem) > 0:
 				sim=team_purchase_sim_calc(self.iname2iid.inverse, hero_vitem, rec_vitem, sim_func='exist_in_rec')
 			result.append([sim, 1])
 			# similarity of the losing team
-			hero_vitem, rec_vitem = self.get_team_actual_rec_item(lplayers, model)
+			hero_vitem, rec_vitem = self.get_team_actual_rec_item(lplayers, model, enemies=wplayers)
 			if len(hero_vitem) > 0:
 				sim=team_purchase_sim_calc(self.iname2iid.inverse, hero_vitem, rec_vitem, sim_func='exist_in_rec')
 			result.append([sim, 0])
@@ -96,18 +95,20 @@ class eva:
 			new_tot = y_tot[index]+1
 			y[index] = (y[index]*y_tot[index]+win)/(float(new_tot))
 			y_tot[index] = new_tot
-		print "percentage: " 
+		print "percentage: "
 		print y
 		print "sample count: "
 		print y_tot
 		print "bins: "
 		print x
-		bar_plot(x, y)
+
+		if 'PROD' not in os.environ:
+			bar_plot(x, y)
 
 	# returns:
 	# 1. hero_vitem: actual [hero*{item:count}]
 	# 2. rec_vitem: recommended [item]
-	def get_team_actual_rec_item(self, players, model):
+	def get_team_actual_rec_item(self, players, model, enemies=None):
 		hero_vitem=[]
 		rec_vitem=[]
 		for p in players:
@@ -133,24 +134,23 @@ class eva:
 			#print vitem
 			#print "hero item avg count: " + str(hero_item_count[hid])
 			# rec with new interface
-			rec=model.rec(hid, len(vitem))
-			#rec=base_rec_h(hid, model, len(vitem))
+			rec=model.rec(hid, len(vitem), players, enemies)
 			rec_vitem.append(rec)
 			# print recommended items
 			#print "recommended: "
 			#rec_name=[self.iname2iid.inverse[iid] for iid in rec]
 			#print rec_name
-			#print ""	
+			#print ""
 		return hero_vitem, rec_vitem
-	
+
 	# two evaluation plots:
 	# 1. similarity distribution in all winning teams
 	# 2. winning rate distribution in all similarity conditions
 
 	# TODOs
 	# 3. how much similarity can we say that the hero followed the recommended item
-	# 4. inherent similarity: how much similarity in item purchase does a hero has 
+	# 4. inherent similarity: how much similarity in item purchase does a hero has
 	# in all conditions?
-	
+
 
 	# weighting

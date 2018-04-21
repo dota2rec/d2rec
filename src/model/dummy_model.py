@@ -82,7 +82,7 @@ class dummy_model(base_model):
 		print self.basic_wr[0]
 	# @h: the hero id
 	# @k: how many items to return
-	def rec(self, h, k):
+	def rec(self, h, k, allies=None, enemies=None):
 		hifreq = self.basic_freq[h]
 		tki = topk_index(hifreq, k)
 		#print "recommended length: " + str(len(tki))

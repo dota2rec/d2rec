@@ -11,6 +11,7 @@ from base_model import base_model
 from classify_model import classify_model
 from dummy_model import dummy_model
 from evaluation import eva
+from item import item_class as iclass
 
 # production test
 #DATA_DIR = 'data/'
@@ -20,21 +21,34 @@ from evaluation import eva
 DATA_DIR = 'mini/'
 TEST_DIR = 'mini/'
 
-rdata = raw_data(proj_root)
-# base model prediction
-model = base_model(rdata.hid_org2new, rdata.item_name2id, (proj_root + DATA_DIR))
-model.train()
-# classify model prediction
-#model = classify_model(rdata.hid_org2new, rdata.item_name2id, (proj_root + DATA_DIR))
-#model.train()
-# dummy model recommendation
-#model = dummy_model(rdata.hid_org2new, rdata.item_name2id, (proj_root + DATA_DIR))
-#model.train(opt='wrate')
+def evaluation():
+	rdata = raw_data(proj_root)
+	# base model prediction
+	#model = base_model(rdata.hid_org2new, rdata.item_name2id, (proj_root + DATA_DIR))
+	#model.train()
+	# classify model prediction
+	#model = classify_model(rdata.hid_org2new, rdata.item_name2id, (proj_root + DATA_DIR))
+	#model.train()
+	# dummy model recommendation
+	model = dummy_model(rdata.hid_org2new, rdata.item_name2id, (proj_root + DATA_DIR))
+	model.train(opt='wrate')
 
-evaluator = eva(rdata)
-sim_vec = evaluator.nec_eva(proj_root+TEST_DIR, model)
-cdf_plot(sim_vec)
-suf_res = evaluator.suf_eva(proj_root+TEST_DIR, model)
-evaluator.suf_histo(suf_res, bin=10)
+	evaluator = eva(rdata)
+	sim_vec = evaluator.nec_eva(proj_root+TEST_DIR, model)
+	cdf_plot(sim_vec)
+	suf_res = evaluator.suf_eva(proj_root+TEST_DIR, model)
+	evaluator.suf_histo(suf_res, bin=10)
 
-#bmodel.calc_base_freq(rdata.hero_name2id, rdata.item_name2id)
+	#bmodel.calc_base_freq(rdata.hero_name2id, rdata.item_name2id)
+
+def test():
+	rdata = raw_data(proj_root)
+	rdata.print_item_table()
+	child = rdata.ihelper.syn_iid_child
+	#print len(child)
+	for c in child:
+		print rdata.item_name2id.inverse[c] + ": " + str([rdata.item_name2id.inverse[i] for i in child[c]])
+	#for iid in consume_iids:
+	#	print rdata.item_name2id.inverse[iid] + "\t" +str(iid) + "\t" + str(rdata.iid_org2new.inverse[iid])
+
+evaluation()
