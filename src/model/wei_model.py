@@ -182,7 +182,7 @@ class wei_model(base_model):
         rec_list = list_1000 + list_1000_2800 + list_2800
         rec_array = np.asarray(rec_list)
         #print h
-        print list_1000,list_1000_2800 ,list_2800
+        #print list_1000,list_1000_2800 ,list_2800
         
     
         return rec_list

@@ -111,6 +111,22 @@ class eva:
 	def get_team_actual_rec_item(self, players, model, enemies=None):
 		hero_vitem=[]
 		rec_vitem=[]
+
+		plist=[]
+		for p in players:
+			if p['hero_id'] != None:
+					hid=self.hid_org2new[p['hero_id']]
+					plist.append(hid)
+			else:
+				continue
+		elist=[]
+		for p in enemies:
+			if p['hero_id'] != None:
+					hid=self.hid_org2new[p['hero_id']]
+					elist.append(hid)
+			else:
+				continue
+
 		for p in players:
 			# vital items that we consider
 			vitem=dict()
@@ -134,7 +150,9 @@ class eva:
 			#print vitem
 			#print "hero item avg count: " + str(hero_item_count[hid])
 			# rec with new interface
-			rec=model.rec(hid, len(vitem), players, enemies)
+
+
+			rec=model.rec(hid, len(vitem), plist, elist)
 			rec_vitem.append(rec)
 			# print recommended items
 			#print "recommended: "
@@ -142,7 +160,6 @@ class eva:
 			#print rec_name
 			#print ""
 		return hero_vitem, rec_vitem
-
 	# two evaluation plots:
 	# 1. similarity distribution in all winning teams
 	# 2. winning rate distribution in all similarity conditions
