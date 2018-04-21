@@ -12,19 +12,20 @@ from classify_model import classify_model
 from dummy_model import dummy_model
 from evaluation import eva
 from item import item_class as iclass
-
+from classify_model_sw import classify_model_sw
+from evaluation_sw import eva_sw
 # production test
-#DATA_DIR = 'data/'
-#TEST_DIR = 'test/'
+DATA_DIR = 'data1/'
+TEST_DIR = 'test1/'
 
 # mini test
-DATA_DIR = 'mini/'
-TEST_DIR = 'mini/'
+#DATA_DIR = 'mini/'
+#TEST_DIR = 'mini/'
 
 def evaluation():
 	rdata = raw_data(proj_root)
 	# base model prediction
-	model = base_model(rdata.hid_org2new, rdata.item_name2id, (proj_root + DATA_DIR))
+	model = classify_model_sw(rdata.hid_org2new, rdata.item_name2id,rdata.item_cost,rdata.ihelper.syn_iid_child,(proj_root + DATA_DIR))
 	model.train()
 	# classify model prediction
 	#model = classify_model(rdata.hid_org2new, rdata.item_name2id, (proj_root + DATA_DIR))
@@ -33,7 +34,7 @@ def evaluation():
 	#model = dummy_model(rdata.hid_org2new, rdata.item_name2id, (proj_root + DATA_DIR))
 	#model.train(opt='wrate')
 
-	evaluator = eva(rdata)
+	evaluator = eva_sw(rdata)
 	sim_vec = evaluator.nec_eva(proj_root+TEST_DIR, model)
 	cdf_plot(sim_vec)
 	suf_res = evaluator.suf_eva(proj_root+TEST_DIR, model)
@@ -51,4 +52,5 @@ def test():
 	#for iid in consume_iids:
 	#	print rdata.item_name2id.inverse[iid] + "\t" +str(iid) + "\t" + str(rdata.iid_org2new.inverse[iid])
 
-test()
+evaluation()
+#test()

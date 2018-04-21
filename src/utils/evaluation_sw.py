@@ -18,8 +18,10 @@ from viz import bar_plot
 class eva_sw:
     def __init__(self, rdata):
         self.iname2iid = rdata.item_name2id
+ #       self.iid2iname = rdata.item_id2name
         self.hname2hid = rdata.hero_name2id
         self.hid_org2new = rdata.hid_org2new
+        self.syn_iid_child = rdata.ihelper.syn_iid_child
 
     # assumes: we have tot_count[h] that stores the avg total "vital" item purchased by hero h
     # assumes: dummy_is_vital(iid)
@@ -136,7 +138,32 @@ class eva_sw:
                 #	pass
                 else:
                     vitem[k] = purchase[k]
-            hero_vitem.append(vitem)
+    
+ #           hero_vitem.append(vitem)
+            #print vitem,vitem.keys()
+            print "before"
+            print vitem.keys()
+            temp = vitem.copy()
+            h_vitem = dict()
+            for itemname in vitem.keys():
+                item_id =self.iname2iid[itemname]
+                if item_id in self.syn_iid_child.keys():
+                    for child_id in self.syn_iid_child[item_id]:
+                        if self.iname2iid.inverse[child_id] in temp.keys() and temp[self.iname2iid.inverse[child_id]] >0:
+                            temp[self.iname2iid.inverse[child_id]] = temp[self.iname2iid.inverse[child_id]] -1
+            
+            for it in temp.keys():
+                if temp[it] != 0:
+                    h_vitem[it] = temp[it]
+                    
+            hero_vitem.append(h_vitem)
+            result_id = []
+            for item in h_vitem.keys():
+                result_id.append(self.iname2iid[item])
+            print "reuslt"
+            print h_vitem
+            
+            
         # print self.hname2hid.inverse[hid]
         # print "actual purchase: "
         # print vitem
@@ -147,12 +174,20 @@ class eva_sw:
             rec = model.rec(hid, len(vitem), players, lplayers)
             # rec=base_rec_h(hid, model, len(vitem))
             rec_vitem.append(rec)
+            list_predict = []
+            for pre in rec:
+                list_predict.append(self.iname2iid.inverse[pre])
+            print "predict"
+            print list_predict
+            print
+            
     # print recommended items
     # print "recommended: "
     # rec_name=[self.iname2iid.inverse[iid] for iid in rec]
     # print rec_name
     # print ""
         return hero_vitem, rec_vitem
+     
 
     # two evaluation plots:
     # 1. similarity distribution in all winning teams

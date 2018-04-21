@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import json
 import os
 import numpy as np
@@ -20,8 +21,8 @@ from item import item_class
 # output is:
 # self.basic_freq = [h*i]
 class classify_model_sw(base_model):
-    WIN_SCORE = 1.0
-    LOSE_SCORE = 0.1
+    WIN_SCORE = 1.5
+    LOSE_SCORE = 0.4
     SUPPORT_WIN_SCORE = 2.0
     SUPPORT_LOSE_SCORE = 0.8
         
@@ -81,13 +82,16 @@ class classify_model_sw(base_model):
                                                 
                         if item_count == None:
                             item_count = 0
-                        item_vec[item_id] = int(item_count)
+                        item_vec[item_id] = item_vec[item_id] + 1
                         
                         if item_id in self.syn_iid_child.keys():
                             for it in self.syn_iid_child[item_id]:
                                 if item_vec[it] >0:
                                     item_vec[it] = item_vec[it] -1
-    
+                                    
+                                
+               
+                
                 hero_freq = self.basic_freq[hero_id]
                 if win:
                     hero_freq += item_vec * classify_model_sw.WIN_SCORE
@@ -139,6 +143,7 @@ class classify_model_sw(base_model):
 # @k: how many items to return
     def rec(self, h, k,ally_list,enemy_list):
         hifreq = self.basic_freq[h].copy()
+        
         for hero in ally_list:
             hid = self.hid_org2new[hero['hero_id']]
             if hid != h:
@@ -146,6 +151,7 @@ class classify_model_sw(base_model):
         for hero in enemy_list:
             hid = self.hid_org2new[hero['hero_id']]
             hifreq += self.support_from_ememy_freq[hid][h]
+        
 
         item_id2cost = {}
         #print self.iname2iid
@@ -153,9 +159,9 @@ class classify_model_sw(base_model):
         for item in self.iname2iid.keys():
             item_id2cost[self.iname2iid[item]] = self.item_cost[item]
         #print item_id2cost
-            
+        print h           
         
-        tki = topk_index(hifreq, int(2.0*k))
+        tki = topk_index(hifreq, int(3.0*k))
  
         
         count_1000 = 0
@@ -165,19 +171,18 @@ class classify_model_sw(base_model):
         list_1000_2800 =[]
         list_2800 = []
         for index in tki:
-            if item_id2cost[index] < 1000 and count_1000 < int(0.45*k):
+            if item_id2cost[index] < 1000 and item_id2cost[index] > 60  and item_id2cost[index]and count_1000 < 7:
                 list_1000.append(index)
                 count_1000 +=1
-            if item_id2cost[index] >= 1000 and item_id2cost[index] < 2800 and count_1000_2800 < int(0.4*k):
+            if item_id2cost[index] >= 1000 and item_id2cost[index] < 2800 and count_1000_2800 < 5:
                 list_1000_2800.append(index)
                 count_1000_2800 +=1
-            if item_id2cost[index] >= 2800 and count_2800 <int(0.7 * k):
+            if item_id2cost[index] >= 2800 and count_2800 < 9:
                 list_2800.append(index)
                 count_2800 += 1
         rec_list = list_1000 + list_1000_2800 + list_2800
         rec_array = np.asarray(rec_list)
-        print h,item_id2cost[162]
-        print tki
+        #print h
         print list_1000,list_1000_2800 ,list_2800
         
     
