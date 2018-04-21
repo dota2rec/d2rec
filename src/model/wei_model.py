@@ -31,7 +31,7 @@ class wei_model(base_model):
         self.iname2iid = rdata.item_name2id
         self.item_cost = rdata.item_cost
         self.datapath = datapath
-        self.syn_iid_child = rdata.syn_iid_child
+        self.syn_iid_child = rdata.ihelper.syn_iid_child
                 
         hcount = self.hid_org2new.len()
         icount = self.iname2iid.len()
