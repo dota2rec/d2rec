@@ -28,7 +28,7 @@ class wei_model(base_model):
         
     def __init__(self, rdata, datapath):
         self.hid_org2new = rdata.hid_org2new
-        self.iname2iid = rdata.iname2iid
+        self.iname2iid = rdata.item_name2id
         self.item_cost = rdata.item_cost
         self.datapath = datapath
         self.syn_iid_child = rdata.syn_iid_child
