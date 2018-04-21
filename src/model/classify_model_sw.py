@@ -98,6 +98,7 @@ class classify_model_sw(base_model):
                 else:
                     hero_freq += item_vec * classify_model_sw.LOSE_SCORE
 
+>>>>>>> 9341ac45f1ae90ff7d3b45ef0aac0b05448fb2c6
                     
                 ####### Here I directly use vec_item and if it's not the vector of item frequence for this player,plesse modify it
                 vector = item_vec.copy()
@@ -159,7 +160,7 @@ class classify_model_sw(base_model):
         for item in self.iname2iid.keys():
             item_id2cost[self.iname2iid[item]] = self.item_cost[item]
         #print item_id2cost
-        print h           
+            
         
         tki = topk_index(hifreq, int(3.0*k))
  
