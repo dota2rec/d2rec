@@ -88,8 +88,8 @@ class wei_model(base_model):
 
                         if item_id in self.syn_iid_child.keys():
                             for it in self.syn_iid_child[item_id]:
-                                if item_vec[it] > 0:
-                                    item_vec[it] = item_vec[it] -1
+                                #if item_vec[it] > 0:
+                                item_vec[it] = item_vec[it] -1
 
 
 
@@ -170,13 +170,13 @@ class wei_model(base_model):
         list_1000_2800 =[]
         list_2800 = []
         for index in tki:
-            if item_id2cost[index] < 1000 and item_id2cost[index] > 185  and item_id2cost[index]and count_1000 < 7 and hifreq[index]/self.hero_frequence[h] > 0.5:
+            if item_id2cost[index] < 1000 and item_id2cost[index] > 185  and item_id2cost[index]and count_1000 < 7 and hifreq[index]/self.hero_frequence[h] > 0.2:
                 list_1000.append(index)
                 count_1000 +=1
-            if item_id2cost[index] >= 1000 and item_id2cost[index] < 3000 and count_1000_2800 < 7 and hifreq[index]/self.hero_frequence[h] > 0.5:
+            if item_id2cost[index] >= 1000 and item_id2cost[index] < 3000 and count_1000_2800 < 7 and hifreq[index]/self.hero_frequence[h] > 0.2:
                 list_1000_2800.append(index)
                 count_1000_2800 +=1
-            if item_id2cost[index] >= 3000 and count_2800 < 7 and hifreq[index]/self.hero_frequence[h] > 0.3:
+            if item_id2cost[index] >= 3000 and count_2800 < 7 and hifreq[index]/self.hero_frequence[h] > 0.15:
                 list_2800.append(index)
                 count_2800 += 1
         def cost(x):

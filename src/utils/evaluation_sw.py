@@ -10,7 +10,7 @@ sys.path.insert(0, proj_root + 'src/utils/')
 sys.path.insert(0, proj_root + 'src/bean/')
 
 from utils import team_purchase_sim_calc
-from item import item_class as iclass
+from item import item as iclass
 from viz import cdf_plot
 from viz import bar_plot
 
@@ -32,6 +32,7 @@ class eva_sw:
  #       self.iid2iname = rdata.item_id2name
         self.hname2hid = rdata.hero_name2id
         self.hid_org2new = rdata.hid_org2new
+        self.item_cost = rdata.item_cost
         self.syn_iid_child = rdata.ihelper.syn_iid_child
 
     # assumes: we have tot_count[h] that stores the avg total "vital" item purchased by hero h
@@ -52,7 +53,7 @@ class eva_sw:
             hero_vitem, rec_vitem = self.get_team_actual_rec_item(wplayers, model,enemies = lplayers )
 
             if len(hero_vitem) > 0:
-                sim = team_purchase_sim_calc(self.iname2iid.inverse, hero_vitem, rec_vitem, sim_func='exist_in_rec')
+                sim = team_purchase_sim_calc(self.iname2iid, hero_vitem, rec_vitem, sim_func='exist_in_rec')
                 # print "rec-actual item purchase similarity of match " + str(fname) + ": " + str(sim)
 
                 sim_vec.append(sim)
@@ -77,12 +78,12 @@ class eva_sw:
             # similarity of the winning team
             hero_vitem, rec_vitem = self.get_team_actual_rec_item(wplayers, model,enemies = lplayers)
             if len(hero_vitem) > 0:
-                sim = team_purchase_sim_calc(self.iname2iid.inverse, hero_vitem, rec_vitem, sim_func='exist_in_rec')
+                sim = team_purchase_sim_calc(self.iname2iid, hero_vitem, rec_vitem, sim_func='exist_in_rec')
             result.append([sim, 1])
             # similarity of the losing team
             hero_vitem, rec_vitem = self.get_team_actual_rec_item(lplayers, model,enemies = lplayers)
             if len(hero_vitem) > 0:
-                sim = team_purchase_sim_calc(self.iname2iid.inverse, hero_vitem, rec_vitem, sim_func='exist_in_rec')
+                sim = team_purchase_sim_calc(self.iname2iid, hero_vitem, rec_vitem, sim_func='exist_in_rec')
             result.append([sim, 0])
         return result
 
@@ -160,11 +161,12 @@ class eva_sw:
                 item_id =self.iname2iid[itemname]
                 if item_id in self.syn_iid_child.keys():
                     for child_id in self.syn_iid_child[item_id]:
-                        if self.iname2iid.inverse[child_id] in temp.keys() and temp[self.iname2iid.inverse[child_id]] >0:
+                        if self.iname2iid.inverse[child_id] in temp.keys():
+                            #and temp[self.iname2iid.inverse[child_id]] >0:
                             temp[self.iname2iid.inverse[child_id]] = temp[self.iname2iid.inverse[child_id]] -1
             
             for it in temp.keys():
-                if temp[it] != 0:
+                if temp[it] != 0 and self.item_cost[it] >185:
                     h_vitem[it] = temp[it]
             #print "reuslt"
             #print temp
@@ -182,11 +184,14 @@ class eva_sw:
         # rec with new interface
 
 
-            rec = model.rec(hid, int(1.5*len(vitem)), plist, elist)
+            rec_dict = model.rec(hid, int(1.5*len(vitem)), plist, elist)
+            rec_list = []
+            for item in rec_dict.keys():
+                rec_list += rec_dict[item]
             # rec=base_rec_h(hid, model, len(vitem))
-            rec_vitem.append(rec)
+            rec_vitem.append(rec_list)
             list_predict = []
-            for pre in rec:
+            for pre in rec_list:
                 list_predict.append(self.iname2iid.inverse[pre])
             #print "predict"
             #print list_predict
