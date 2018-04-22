@@ -145,9 +145,6 @@ class eva_sw:
             for k in purchase:
                 if k not in self.iname2iid:
                     pass
-                # iid = self.iname2iid[k]
-                # if iclass.is_not_consider(k, iid):
-                #	pass
                 else:
                     vitem[k] = purchase[k]
     

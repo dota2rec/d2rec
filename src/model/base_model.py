@@ -69,4 +69,4 @@ class base_model:
 		hifreq = self.basic_freq[h]
 		tki = topk_index(hifreq, k)
 		#print "recommended length: " + str(len(tki))
-		return {'basic':tki}
+		return {'basic':tki.tolist()}

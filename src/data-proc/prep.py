@@ -52,7 +52,8 @@ class raw_data(object):
 			name = re.sub('(npc_dota_hero_|item_)', '', data[i]['name'])
 			iid = data[i]['id']
 			# not repeated item/hero
-			if (name not in name2iid) and (not iclass.is_not_consider(name, iid)):
+			if (name not in name2iid) and \
+				(not iclass.is_not_consider(name, iid)):
 				# 1. remove recipe item
 				# 2. remove consume item
 				# 3. remove upgraded versions of an item

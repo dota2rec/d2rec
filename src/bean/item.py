@@ -33,10 +33,8 @@ class item:
 		self.syn_iid_child = self.dict_id_org2new(self.syn_iid_child)
 
 		# new consume_iids after continuous assignment
-		if opt == 'more_consume':
-			self.consume_iids_new = self.lst_id_org2new(item.consume_iids_more)
-		else:
-			self.consume_iids_new = self.lst_id_org2new(item.consume_iids)
+		self.consume_iids_new_more = self.lst_id_org2new(item.consume_iids_more)
+		self.consume_iids_new = self.lst_id_org2new(item.consume_iids)
 
 		# wei's list
 		#self.basic_iids = [21, 31, 37, 55, 57, 59, 61, 56, 58, 60, 13, 15, 17, 19, 23, 25, 27, 29, 215, 12, 240, 52, 51, 53, 54, 3, 5, 7, 9, 11, 2, 4, 6, 8, 10, 244, 182, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 41, 181]
@@ -68,16 +66,29 @@ class item:
 	def is_consume(iid):
 	    return (iid in item.consume_iids)
 	    #return (iname2iid[iname] in consume_iids)
+	@staticmethod
+	def is_consume_more(iid):
+	    return (iid in item.consume_iids_more)
 	
 	def is_consume_new(self, iname):
 		return (self.iname2iid[iname] in self.consume_iids_new)
+
+	def is_consume_new(self, iname):
+		return (self.iname2iid[iname] in self.consume_iids_new_more)
 
 	@staticmethod
 	def is_not_consider(iname, iid):
 	    return (item.is_recipe(iname) or item.is_upgrade(iname) or item.is_consume(iid))
 
+	@staticmethod
+	def is_not_consider_more(iname, iid):
+	    return (item.is_recipe(iname) or item.is_upgrade(iname) or item.is_consume_more(iid))
+
 	def is_not_consider_new(iname, new_iid):
 		return (self.is_recipe(iname) or self.is_upgrade(iname) or self.is_consume_new(iname))
+
+	def is_not_consider_new_more(iname, new_iid):
+		return (self.is_recipe(iname) or self.is_upgrade(iname) or self.is_consume_new_more(iname))
 		
 	def item_name2id(iname):
 		return self.iname2iid[iname]
