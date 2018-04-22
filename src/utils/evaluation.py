@@ -144,14 +144,17 @@ class eva:
 				else:
 					vitem[k]=purchase[k]
 			hero_vitem.append(vitem)
-			#print self.hname2hid.inverse[hid]
+			print self.hname2hid.inverse[hid]
 			#print "actual purchase: "
 			#print vitem
 			#print "hero item avg count: " + str(hero_item_count[hid])
 			# rec with new interface
 
 
-			rec=model.rec(hid, len(vitem), plist, elist)['basic']
+			rec_dict=model.rec(hid, len(vitem), plist, elist)
+			rec = []
+			for itemclass in rec_dict:
+				rec += rec_dict[itemclass]
 			rec_vitem.append(rec)
 			# print recommended items
 			#print "recommended: "

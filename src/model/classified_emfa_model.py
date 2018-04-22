@@ -114,6 +114,12 @@ class classified_emfa_model:
 							fcount += count
 						elif item_class == iclass.ASSIST:
 							acount += count
+					#print "tot count: " + str(tot_count)
+					#print "assist count: " + str(acount)
+					#print ""
+
+					#if acount > 20:
+					#	print match_file_name + str(hero_id) + "used " + str(acount)
 				#if hero_id==43:
 				#	print fcount
 				if fcount > 0:
@@ -121,7 +127,7 @@ class classified_emfa_model:
 					for key in tmp_tot:
 						tot_by_class[key][hero_id].append(tmp_tot[key])
 				#print all_icount
-				all_icount[hero_id].append(count)
+				all_icount[hero_id].append(tot_count)
 				#print all_icount
 				tot_acount[hero_id].append(acount)
 			match_file.close()
@@ -139,15 +145,17 @@ class classified_emfa_model:
 		# calc the total icount and acount that is larger than item count in 90% games
 		for i in range(0, len(all_icount)):
 			try:
-				self.conf_all_icount[i] = int(np.percentile(all_icount[i], 99))
-				self.conf_acount[i] = int(np.percentile(tot_acount[i], 99))
+				self.conf_all_icount[i] = int(np.percentile(all_icount[i], 90))
+				self.conf_acount[i] = int(np.percentile(tot_acount[i], 90))
+				#print all_icount[i]
+				#print tot_acount[i]
 			except:
 				pass
 				#print "hero id " + str(i) + " confidence aggregation: " 
 				#print all_icount[i]
 				#print tot_acount[i]
 				#print "Pls. use a larger dataset that at least covers all heros!"
-		test = 83
+		#test = 83
 		#print self.avg_etot[test]
 		#print self.avg_mtot[test]
 		# confident final (X% confidence in terms of match time coverage)
@@ -164,13 +172,15 @@ class classified_emfa_model:
 		e_num = self.avg_etot[h]
 		m_num = self.avg_mtot[h]
 		f_num = self.conf_all_icount[h] - e_num - m_num - a_num
+		#print self.conf_all_icount[h]
+		#print "anum: " + str(a_num) + "\t enum: " + str(e_num) + "\t mnum: " + str(m_num) + "\t f_num" + str(f_num)
 		class2count = {iclass.ASSIST:a_num, iclass.EARLY:e_num, iclass.MID:m_num, iclass.FINAL:f_num}
 		# get the sorted item id list
 		hifreq = self.basic_freq[h]
 		tki = topk_index(hifreq, len(hifreq))
 		# classified top k item recommendation dict
 		classified_tki = {iclass.ASSIST:[], iclass.EARLY:[], iclass.MID:[], \
-			iclass.FINAL:[], 'basic':[]}
+			iclass.FINAL:[]}
 
 		for iid in tki:
 			# classify into four classes
@@ -178,7 +188,6 @@ class classified_emfa_model:
 			# if the current class is not full, add the item for recommendation
 			if len(classified_tki[c]) < class2count[c]:
 				classified_tki[c].append(iid)
-				classified_tki['basic'].append(iid)
 		#print "length of rec() return: " + str(len(classified_tki['basic']))
-
+		print classified_tki[iclass.FINAL]
 		return classified_tki

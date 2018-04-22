@@ -24,10 +24,10 @@ TEST_DIR = 'test_small/'
 def evaluation():
 	rdata = raw_data(proj_root)
 	# base model prediction
-	bmodel = base_model(rdata, (proj_root + DATA_DIR))
-	bmodel.train()
+	#bmodel = base_model(rdata, (proj_root + DATA_DIR))
+	#bmodel.train()
 	evaluator = eva(rdata)
-	sim_vec = evaluator.nec_eva(proj_root+TEST_DIR, bmodel)
+	#sim_vec = evaluator.nec_eva(proj_root+TEST_DIR, bmodel)
 	# classify model prediction
 	#model = classify_model(rdata.hid_org2new, rdata.item_name2id, (proj_root + DATA_DIR))
 	#model.train()
