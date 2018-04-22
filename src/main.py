@@ -10,38 +10,40 @@ from viz import cdf_plot
 from base_model import base_model
 from dummy_model import dummy_model
 from evaluation import eva
-from wei_model import wei_model
+from classified_emfa_model import classified_emfa_model as cem
+#from wei_model import wei_model
 
 # production test
 #DATA_DIR = 'data/'
 #TEST_DIR = 'test/'
 
 # mini test
-DATA_DIR = 'mini/'
-TEST_DIR = 'mini/'
+DATA_DIR = 'data_small/'
+TEST_DIR = 'test_small/'
 
 def evaluation():
 	rdata = raw_data(proj_root)
 	# base model prediction
-	#model = base_model(rdata.hid_org2new, rdata.item_name2id, (proj_root + DATA_DIR))
-	#model.train()
+	bmodel = base_model(rdata, (proj_root + DATA_DIR))
+	bmodel.train()
+	evaluator = eva(rdata)
+	sim_vec = evaluator.nec_eva(proj_root+TEST_DIR, bmodel)
 	# classify model prediction
 	#model = classify_model(rdata.hid_org2new, rdata.item_name2id, (proj_root + DATA_DIR))
 	#model.train()
 	
 	# dummy model recommendation
-	model = dummy_model(rdata, (proj_root + DATA_DIR))
-	model.train(opt='wrate')
+	#model = dummy_model(rdata, (proj_root + DATA_DIR))
+	#model.train(opt='wrate')
 
-	# wei model recommendation
-	#model = wei_model(rdata, (proj_root + DATA_DIR))
-	#model.train()
-
-	evaluator = eva(rdata)
+	# emfa model
+	model = cem(rdata, (proj_root + DATA_DIR))
+	model.train()
+	# evaluation package
 	sim_vec = evaluator.nec_eva(proj_root+TEST_DIR, model)
-	cdf_plot(sim_vec)
-	suf_res = evaluator.suf_eva(proj_root+TEST_DIR, model)
-	evaluator.suf_histo(suf_res, bin=10)
+	#cdf_plot(sim_vec)
+	#suf_res = evaluator.suf_eva(proj_root+TEST_DIR, model)
+	#evaluator.suf_histo(suf_res, bin=10)
 
 	#bmodel.calc_base_freq(rdata.hero_name2id, rdata.item_name2id)
 

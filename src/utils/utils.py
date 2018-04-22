@@ -67,7 +67,7 @@ def feature_vec(iid2name, dic1, arr2):
 # @hp_rec: recommended hero-purchase counter dict array
 # @opt: aggregation function, average and etc
 # TODO: for diff heroes, we may have different weight when calc total similarity
-def team_purchase_sim_calc(iid2name, hp, hp_rec, norm=False, sim_func='cosine', aggr_opt='avg'):
+def team_purchase_sim_calc(iname2iid, hp, hp_rec, norm=False, sim_func='cosine', aggr_opt='avg'):
 	#print "len(hero purchase): " + str(len(hp))
 	sim_vec=[]
 	tot_sim=0
@@ -94,9 +94,8 @@ def team_purchase_sim_calc(iid2name, hp, hp_rec, norm=False, sim_func='cosine', 
 				#print hpr
 				# item purchase counter to feature vector
 				success = 0
-				for rec in hpr:
-					iname = iid2name[rec]
-					if iname in h:
+				for actual_name in h:
+					if iname2iid[actual_name] in hpr:
 						success += 1
 				sim_vec.append((float(success)/len(h)))
 	else:

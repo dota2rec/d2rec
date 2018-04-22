@@ -48,7 +48,7 @@ class eva:
 			hero_vitem, rec_vitem = self.get_team_actual_rec_item(wplayers, model, enemies=lplayers)
 
 			if len(hero_vitem) > 0:
-				sim=team_purchase_sim_calc(self.iname2iid.inverse, hero_vitem, rec_vitem, sim_func='exist_in_rec')
+				sim=team_purchase_sim_calc(self.iname2iid, hero_vitem, rec_vitem, sim_func='exist_in_rec')
 				#print "rec-actual item purchase similarity of match " + str(fname) + ": " + str(sim)
 
 				sim_vec.append(sim)
@@ -72,12 +72,12 @@ class eva:
 			# similarity of the winning team
 			hero_vitem, rec_vitem = self.get_team_actual_rec_item(wplayers, model, enemies=lplayers)
 			if len(hero_vitem) > 0:
-				sim=team_purchase_sim_calc(self.iname2iid.inverse, hero_vitem, rec_vitem, sim_func='exist_in_rec')
+				sim=team_purchase_sim_calc(self.iname2iid, hero_vitem, rec_vitem, sim_func='exist_in_rec')
 			result.append([sim, 1])
 			# similarity of the losing team
 			hero_vitem, rec_vitem = self.get_team_actual_rec_item(lplayers, model, enemies=wplayers)
 			if len(hero_vitem) > 0:
-				sim=team_purchase_sim_calc(self.iname2iid.inverse, hero_vitem, rec_vitem, sim_func='exist_in_rec')
+				sim=team_purchase_sim_calc(self.iname2iid, hero_vitem, rec_vitem, sim_func='exist_in_rec')
 			result.append([sim, 0])
 		return result
 

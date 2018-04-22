@@ -35,22 +35,18 @@ class classified_emfa_model:
 		self.ihelper = rdata.ihelper
 		self.datapath = datapath
 		# how many heros and items we have to consider
-		hcount = self.hid_org2new.len()
-		icount = self.iname2iid.len()
+		self.hcount = self.hid_org2new.len()
+		self.icount = self.iname2iid.len()
 		# init the basic win/lose weighted frequency
-		self.basic_freq = np.zeros((hcount, icount))
+		self.basic_freq = np.zeros((self.hcount, self.icount))
 		# init early-mid stage avg total item count per hero
-		self.avg_etot = []*hcount
-		self.avg_mtot = []*hcount
-		self.tot_by_class = {iclass.EARLY:([[] for i in range(0, hcount)]), \
-			iclass.MID:([[] for i in range(0, hcount)])}
+		self.avg_etot = [0]*self.hcount
+		self.avg_mtot = [0]*self.hcount
 		# confident final (X% confidence in terms of match time coverage)
 		# 1. total item count for a match per hero
-		self.conf_all_icount = []*hcount
-		self.all_icount = [[] for i in range(0, hcount)]
+		self.conf_all_icount = [0]*self.hcount
 		# 2. total assistance item count for a match per hero
-		self.conf_acount = []*hcount
-		self.tot_acount = [[] for i in range(0, hcount)]
+		self.conf_acount = [0]*self.hcount
 		pass
 
 	# train basic freq model using json match records data in 'datapath'
@@ -61,6 +57,13 @@ class classified_emfa_model:
 	#		 therefore a high/low winning rate        
 	def train(self, opt='freq'):
 		print self.__class__.__name__ + " train(): "
+		# structure example:
+		# "early" : [h*x] (h row and x col is the hero h's early item count in match x)
+		tot_by_class = {iclass.EARLY:([[] for i in range(0, self.hcount)]), \
+			iclass.MID:([[] for i in range(0, self.hcount)])}
+
+		all_icount = [[] for i in range(0, self.hcount)]
+		tot_acount = [[] for i in range(0, self.hcount)]
 
 		for match_file_name in tqdm(os.listdir(self.datapath)):
 			match_file = open(self.datapath + match_file_name)
@@ -74,13 +77,14 @@ class classified_emfa_model:
 					continue
 				# get hid and purchases of the hero
 				hero_id = self.hid_org2new[player['hero_id']]
+				#print hero_id
 				purchases = player['purchase']
 				win = player['isRadiant'] == player['radiant_win']
 				# how many final item present at this match for this hero
 				fcount = 0
 				# how many item in total
-				count = 0
 				acount = 0
+				tot_count = 0
 				# init a temp stats dict for item count in diff class
 				tmp_tot = {}
 				for key in tot_by_class:
@@ -90,8 +94,11 @@ class classified_emfa_model:
 					# if this is an item we consider
 					if item_name in self.iname2iid:
 						# calc the total relevant item purchased in this game
-						if purchases[item_name] != None:
-							count += purchases[item_name]
+						count = purchases[item_name]
+						if count != None:
+							tot_count += count
+						else:
+							continue
 
 						item_id = self.iname2iid[item_name]
 						# calc the basic weighted frequency matrix
@@ -101,22 +108,54 @@ class classified_emfa_model:
 						item_class = self.ihelper.emfa_freq_classify(item_id)
 						# if this is a class we have interests in
 						if item_class in tot_by_class:
-							tmp_tot[item_class] += 1
+							#print str(item_class) + "\t" + item_name + "\t" + str(count)
+							tmp_tot[item_class] += count
 						elif item_class == iclass.FINAL:
-							fcount += 1
+							fcount += count
 						elif item_class == iclass.ASSIST:
-							acount += 1
+							acount += count
+				#if hero_id==43:
+				#	print fcount
 				if fcount > 0:
 					# append the current match 
 					for key in tmp_tot:
 						tot_by_class[key][hero_id].append(tmp_tot[key])
-				self.all_icount[hero_id].append(count)
-				self.tot_acount[hero_id].append(acount)
-				# TODO
-				# calc the avg purchase amount of em items
-				# calc the total icount and acount that is larger than item count in 90% games
-				# is_assistance() in item.py
+				#print all_icount
+				all_icount[hero_id].append(count)
+				#print all_icount
+				tot_acount[hero_id].append(acount)
 			match_file.close()
+		# calc the avg purchase amount of em items
+		miss_count = 0
+		etot = tot_by_class[iclass.EARLY]
+		mtot = tot_by_class[iclass.MID]
+		for hid in range(0, len(etot)):
+			if len(etot[hid]) > 0 and len(mtot[hid]) > 0:
+				# logic is validated for the following
+				self.avg_etot[hid] = sum(etot[hid])/len(etot[hid])
+				self.avg_mtot[hid] = sum(mtot[hid])/len(mtot[hid])
+			else:
+				miss_count += 1
+		# calc the total icount and acount that is larger than item count in 90% games
+		for i in range(0, len(all_icount)):
+			try:
+				self.conf_all_icount[i] = int(np.percentile(all_icount[i], 99))
+				self.conf_acount[i] = int(np.percentile(tot_acount[i], 99))
+			except:
+				pass
+				#print "hero id " + str(i) + " confidence aggregation: " 
+				#print all_icount[i]
+				#print tot_acount[i]
+				#print "Pls. use a larger dataset that at least covers all heros!"
+		test = 83
+		#print self.avg_etot[test]
+		#print self.avg_mtot[test]
+		# confident final (X% confidence in terms of match time coverage)
+		# 1. total item count for a match per hero
+		#print self.conf_all_icount[test]
+		# 2. total assistance item count for a match per hero
+		#print self.conf_acount[test]
+		# is_assistance() in item.py
 
 	# @h: the hero id
 	# @k: how many items to return
@@ -130,12 +169,16 @@ class classified_emfa_model:
 		hifreq = self.basic_freq[h]
 		tki = topk_index(hifreq, len(hifreq))
 		# classified top k item recommendation dict
-		classified_tki = {iclass.ASSIST:[], iclass.EARLY:[], iclass.MID:[], iclass.FINAL:[]}
+		classified_tki = {iclass.ASSIST:[], iclass.EARLY:[], iclass.MID:[], \
+			iclass.FINAL:[], 'basic':[]}
 
-		for iid in range(0, len(tki)):
+		for iid in tki:
 			# classify into four classes
 			c = self.ihelper.emfa_freq_classify(iid)
 			# if the current class is not full, add the item for recommendation
 			if len(classified_tki[c]) < class2count[c]:
 				classified_tki[c].append(iid)
+				classified_tki['basic'].append(iid)
+		#print "length of rec() return: " + str(len(classified_tki['basic']))
+
 		return classified_tki

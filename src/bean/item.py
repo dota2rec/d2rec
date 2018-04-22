@@ -16,16 +16,11 @@ class iclass(Enum):
 class item:
 	# transformed consume iids
 	#consume_iids = [4, 5, 6, 7, 8, 9, 10, 87, 145, 151, 173, 174]
-	consume_iids = [216,40,42,43,218,44,241,257,265,237,38,39,46]
-	# enchanted mango(4), dust(5), ward_observer(42), ward_sentry(43), 
-	# TODO: we should consider:
-	# dust	40
-	# ward_observer	42
-	# ward_sentry	43
-	# ward_dispenser	218
+	consume_iids = [216,44,241,257,265,237,38,39,46]
+	# enchanted mango(4)
 
 
-	def __init__(self, iname2iid, iid2name, iid_org2new, icost):
+	def __init__(self, iname2iid, iid_org2new, icost):
 		self.iid_org2new = iid_org2new
 		#print "item initializer: "
 		self.syn_iids = [121,123,98,250,252,263,104,141,145,147,110,249,154,158,164,235,185,229,196,242,190,231,206,208,210,212,79,81,90]
@@ -37,23 +32,24 @@ class item:
 		self.syn_iid_child = self.dict_id_org2new(self.syn_iid_child)
 
 		# new consume_iids after continuous assignment
-		#print "original consume_iids: "
-		#print consume_iids
 		self.consume_iids_new = self.lst_id_org2new(item.consume_iids)
-		#print "transformed consume_iids"
-		#print consume_iids
 
-		self.basic_iids = [21, 31, 37, 45, 55, 57, 59, 61, 56, 58, 60, 13, 15, 17, 19, 23, 25, 27, 29, 215, 12, 240, 52, 51, 53, 54, 3, 5, 7, 9, 11, 2, 4, 6, 8, 10, 244, 182, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 41, 84, 181]
-		self.basic_iids = self.lst_id_org2new(self.basic_iids)
-
-		self.inter_iids = [48, 92,98, 102, 143, 149, 236, 152, 162, 166, 170, 187, 129,131, 73,75,77, 79,86, 88, 125,67, 69, 94, 180]
-		self.inter_iids = self.lst_id_org2new(self.inter_iids)
-
-		self.final_iids = [160, 196, 48, 50, 106, 119, 121, 123, 96, 250, 252, 100, 232, 263, 104, 108, 141, 145, 147, 223, 225, 256, 259, 110, 112, 114, 116, 139, 151, 249, 154, 156, 158, 164, 172, 174, 176, 178, 235, 185, 229, 196, 242, 127, 133, 135, 137, 168, 190, 231, 206, 239, 208, 210, 212, 214, 63, 81, 90, 1, 247, 65, 36, 254, 71]
-		self.final_iids = self.lst_id_org2new(self.final_iids)
+		# wei's list
+		#self.basic_iids = [21, 31, 37, 55, 57, 59, 61, 56, 58, 60, 13, 15, 17, 19, 23, 25, 27, 29, 215, 12, 240, 52, 51, 53, 54, 3, 5, 7, 9, 11, 2, 4, 6, 8, 10, 244, 182, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 41, 181]
+		#self.basic_iids = self.lst_id_org2new(self.basic_iids)
+		#self.inter_iids = [48, 92,98, 102, 143, 149, 236, 152, 162, 166, 170, 187, 129,131, 73,75,77, 79,86, 88, 125,67, 69, 94, 180]
+		#self.inter_iids = self.lst_id_org2new(self.inter_iids)
+		#self.final_iids = [160, 196, 48, 50, 106, 119, 121, 123, 96, 250, 252, 100, 232, 263, 104, 108, 141, 145, 147, 223, 225, 256, 259, 110, 112, 114, 116, 139, 151, 249, 154, 156, 158, 164, 172, 174, 176, 178, 235, 185, 229, 196, 242, 127, 133, 135, 137, 168, 190, 231, 206, 239, 208, 210, 212, 214, 63, 81, 90, 1, 247, 65, 36, 254, 71]
+		#self.final_iids = self.lst_id_org2new(self.final_iids)
 
 		self.icost = icost
-		self.assist_iids = []
+		# dust:40, ward_observer:42, ward_sentry:43
+		# ward_dispenser:218, courier:45, flying_courier:84
+		self.assist_iids = [40, 42, 43, 218, 45, 84]
+		self.assist_iids = self.lst_id_org2new(self.assist_iids)
+		print self.assist_iids
+
+		self.iname2iid = iname2iid
 		pass
 
 	@staticmethod
@@ -70,7 +66,7 @@ class item:
 	    #return (iname2iid[iname] in consume_iids)
 	
 	def is_consume_new(self, iname):
-		return (iname2iid[iname] in self.consume_iids_new)
+		return (self.iname2iid[iname] in self.consume_iids_new)
 
 	@staticmethod
 	def is_not_consider(iname, iid):
@@ -80,10 +76,10 @@ class item:
 		return (self.is_recipe(iname) or self.is_upgrade(iname) or self.is_consume_new(iname))
 		
 	def item_name2id(iname):
-		return iname2iid[iname]
+		return self.iname2iid[iname]
 
 	def item_id2name(iid):
-		return iid2name[iid]
+		return self.iname2iid.inverse[iid]
 
 	def lst_id_org2new(self, id_lst):
 		new_id_lst = []
@@ -102,11 +98,11 @@ class item:
 			new_dict[self.iid_org2new[k]] = new_child
 		return new_dict
 
-	def emfa_freq_classify(iid, opt='cost'):
-		if iid in assist_iids:
+	def emfa_freq_classify(self, iid, opt='cost'):
+		if iid in self.assist_iids:
 			return iclass.ASSIST
 
-		cost = self.icost[item_id2name.inverse[iid]]
+		cost = self.icost[self.iname2iid.inverse[iid]]
 		if cost > 3500:
 			return iclass.FINAL
 		elif cost > 1000:
