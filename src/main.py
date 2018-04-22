@@ -18,7 +18,7 @@ from classified_emfa_model import classified_emfa_model as cem
 #TEST_DIR = 'test/'
 
 # mini test
-DATA_DIR = 'data_small/'
+DATA_DIR = 'data/'
 TEST_DIR = 'test_small/'
 
 def evaluation():

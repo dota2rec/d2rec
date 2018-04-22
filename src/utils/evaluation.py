@@ -49,7 +49,7 @@ class eva:
 
 			if len(hero_vitem) > 0:
 				sim=team_purchase_sim_calc(self.iname2iid, hero_vitem, rec_vitem, sim_func='exist_in_rec')
-				#print "rec-actual item purchase similarity of match " + str(fname) + ": " + str(sim)
+				print "rec-actual item purchase similarity of match " + str(fname) + ": " + str(sim)
 
 				sim_vec.append(sim)
 				if not np.isnan(sim):
@@ -145,8 +145,8 @@ class eva:
 					vitem[k]=purchase[k]
 			hero_vitem.append(vitem)
 			print self.hname2hid.inverse[hid]
-			#print "actual purchase: "
-			#print vitem
+			print "actual purchase: "
+			print vitem
 			#print "hero item avg count: " + str(hero_item_count[hid])
 			# rec with new interface
 
@@ -157,10 +157,10 @@ class eva:
 				rec += rec_dict[itemclass]
 			rec_vitem.append(rec)
 			# print recommended items
-			#print "recommended: "
-			#rec_name=[self.iname2iid.inverse[iid] for iid in rec]
-			#print rec_name
-			#print ""
+			print "recommended: "
+			rec_name=[self.iname2iid.inverse[iid] for iid in rec]
+			print rec_name
+			print ""
 		return hero_vitem, rec_vitem
 	# two evaluation plots:
 	# 1. similarity distribution in all winning teams

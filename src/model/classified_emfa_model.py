@@ -146,7 +146,7 @@ class classified_emfa_model:
 		for i in range(0, len(all_icount)):
 			try:
 				self.conf_all_icount[i] = int(np.percentile(all_icount[i], 90))
-				self.conf_acount[i] = int(np.percentile(tot_acount[i], 90))
+				self.conf_acount[i] = int(np.percentile(tot_acount[i], 50))
 				#print all_icount[i]
 				#print tot_acount[i]
 			except:
