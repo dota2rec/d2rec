@@ -10,7 +10,9 @@ proj_root = '../'
 sys.path.insert(0, proj_root + 'src/data-proc/')
 sys.path.insert(0, proj_root + 'src/model/')
 sys.path.insert(0, proj_root + 'src/utils/')
+sys.path.insert(0, proj_root + 'src/bean/')
 
+from item import iclass
 from prep import raw_data
 from base_model import base_model
 from evaluation import eva
@@ -67,19 +69,25 @@ def get_recommendations(heroes, enemy_heroes):
     enemy_hids = [h['id'] for h in enemy_heroes]
 
     for hero in heroes:
-        item_ord_new_id_list = []
+        item_ord_new_ids = {}
 
         rec_item_ids = models[active_model_name].rec(rdata.hid_org2new[hero['id']], 10, team_hids, enemy_hids)
-        print rec_item_ids
 
-        for item_id in rec_item_ids:
-            item_org_id = iid_new2org[item_id]
-            item_ord_new_id_list.append({
-                'new_id': item_id,
-                'id': item_org_id
-            })
+        for rec_type, items_in_type in rec_item_ids.items():
+            rec_type_name = rec_type
+            if type(rec_type) == iclass:
+                rec_type_name = rec_type.name
+            item_ord_new_ids[rec_type_name] = []
 
-        results[hero['id']] = item_ord_new_id_list
+            for item_id in items_in_type:
+                item_org_id = iid_new2org[item_id]
+
+                item_ord_new_ids[rec_type_name].append({
+                    'new_id': item_id,
+                    'id': item_org_id
+                })
+
+        results[hero['id']] = item_ord_new_ids
     return results
 
 @app.route("/api/test", methods=['GET'])
@@ -134,3 +142,4 @@ if 'PROD' in os.environ:
         app.run(host= '0.0.0.0', threaded=True)
 else:
     app.run(threaded=True)
+

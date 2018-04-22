@@ -12,7 +12,7 @@ sys.path.insert(0, proj_root+'src/model/')
 from utils import initializer
 from utils import topk_index
 from base_model import base_model
-from item import item_class 
+from item import item
 
 # base model that only accumulates the frequence of item occuring
 # on heroes
@@ -25,14 +25,14 @@ class wei_model(base_model):
     LOSE_SCORE = 0.3
     SUPPORT_WIN_SCORE = 4.0
     SUPPORT_LOSE_SCORE = 0.8
-        
+
     def __init__(self, rdata, datapath):
         self.hid_org2new = rdata.hid_org2new
         self.iname2iid = rdata.item_name2id
         self.item_cost = rdata.item_cost
         self.datapath = datapath
         self.syn_iid_child = rdata.ihelper.syn_iid_child
-                
+
         hcount = self.hid_org2new.len()
         icount = self.iname2iid.len()
         self.basic_freq = np.zeros((hcount, icount))
@@ -42,7 +42,7 @@ class wei_model(base_model):
         self.support_from_ememy_freq = np.zeros((hcount,hcount,icount))
         self.hero_frequence = np.zeros(hcount)
         pass
-    
+
         # train basic freq model using json match records data in 'datapath'
     def train(self):
         print self.__class__.__name__ + " train(): "
@@ -60,7 +60,7 @@ class wei_model(base_model):
                         list_radiant.append(id)
                     else:
                         list_dire.append(id)
-                    
+
             if len(list_radiant)!= 5 or len(list_dire)!=5:
                 continue
             #######################################
@@ -71,7 +71,7 @@ class wei_model(base_model):
                 else:
                     continue
                 purchases = player['purchase']
-                                
+
                 win = player['isRadiant'] == player['radiant_win']
                 # vectorize frequency
 #                item_vec = [0]*len(self.iname2iid)
@@ -81,25 +81,25 @@ class wei_model(base_model):
                     if item_name in self.iname2iid:
                         item_count = purchases[item_name]
                         item_id = self.iname2iid[item_name]
-                                                
+
                         if item_count == None:
                             item_count = 0
                         item_vec[item_id] = item_count
-                        
+
                         if item_id in self.syn_iid_child.keys():
                             for it in self.syn_iid_child[item_id]:
                                 if item_vec[it] > 0:
                                     item_vec[it] = item_vec[it] -1
-                                    
-                                
+
+
 
                 if win:
                     self.basic_freq[hero_id] += item_vec * wei_model.WIN_SCORE
                 else:
                     self.basic_freq[hero_id] += item_vec * wei_model.LOSE_SCORE
 
-                    
-                ####### 
+
+                #######
                 vector = item_vec.copy()
                 if hero_id in list_radiant:
                     for id in list_radiant:
@@ -127,22 +127,22 @@ class wei_model(base_model):
                             self.support_from_ememy_freq[id][hero_id] += vector * wei_model.SUPPORT_WIN_SCORE
 
                 ##############################
-                
-                
+
+
                 # use item_vec here for stats purpose per hero in a match
             match_file.close()
 
     def get_item_id2cost(self):
         item_id2cost = {}
         for item in self.item_name2id.keys():
-            item_id2cost[self.item_name2id[item]] = self.item_cost[item]                       
+            item_id2cost[self.item_name2id[item]] = self.item_cost[item]
         return item_id2cost
 
 # @h: the hero id
 # @k: how many items to return
     def rec(self, h, k,ally_list,enemy_list):
         hifreq = self.basic_freq[h].copy()
-        
+
         for hid in ally_list:
             #hid = self.hid_org2new[hero['hero_id']]
             if hid != h:
@@ -150,7 +150,7 @@ class wei_model(base_model):
         for hid in enemy_list:
             #hid = self.hid_org2new[hero['hero_id']]
             hifreq += self.support_from_ememy_freq[hid][h]
-        
+
 
         item_id2cost = {}
         #print self.iname2iid
@@ -158,11 +158,11 @@ class wei_model(base_model):
         for item in self.iname2iid.keys():
             item_id2cost[self.iname2iid[item]] = self.item_cost[item]
         #print item_id2cost
-            
-        
+
+
         tki = topk_index(hifreq, int(3.0*k))
- 
-        
+
+
         count_1000 = 0
         count_1000_2800 = 0
         count_2800 = 0
@@ -189,9 +189,9 @@ class wei_model(base_model):
         rec_list = sorted(rec_list, key = cost)
         rec_array = np.asarray(rec_list)
         #print h
-        
-        #print self.syn_iid_child 
-    
+
+        #print self.syn_iid_child
+
         return rec_dic
 
 
