@@ -56,7 +56,8 @@ class item:
 
 	@staticmethod
 	def is_recipe(iname):
-	    return re.match('recipe_', iname)!=None
+		print iname
+		return re.match('recipe_', iname)!=None
 
 	@staticmethod
 	def is_upgrade(iname):

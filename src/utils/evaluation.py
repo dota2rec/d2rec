@@ -10,6 +10,7 @@ sys.path.insert(0, proj_root+'src/utils/')
 sys.path.insert(0, proj_root + 'src/bean/')
 
 from utils import team_purchase_sim_calc
+from utils import aggr_similarity
 
 if 'PROD' not in os.environ:
 	from viz import cdf_plot
@@ -25,6 +26,15 @@ def get_two_teams(data):
 		wplayers=data['players'][5:10]
 		lplayers=data['players'][0:5]
 	return wplayers, lplayers
+
+def players_json2hnamelist(players, hid_org2new, hname2hid):
+	hid_lst = []
+	for p in players:
+		hid = p["hero_id"]
+		if hid != None:
+			hid_lst.append(hname2hid.inverse[hid_org2new[hid]])
+	return hid_lst
+
 
 class eva:
 	def __init__(self, rdata):
@@ -48,8 +58,27 @@ class eva:
 			hero_vitem, rec_vitem = self.get_team_actual_rec_item(wplayers, model, enemies=lplayers)
 
 			if len(hero_vitem) > 0:
-				sim=team_purchase_sim_calc(self.iname2iid, hero_vitem, rec_vitem, sim_func='exist_in_rec')
-				#print "rec-actual item purchase similarity of match " + str(fname) + ": " + str(sim)
+				# sim vector for the whole team
+				team_sim=team_purchase_sim_calc(self.iname2iid, hero_vitem, rec_vitem, sim_func='exist_in_rec')
+				sim=aggr_similarity(team_sim)
+				if sim > 0.85:
+					#print self.hname2hid.inverse[hid]
+					#print "actual purchase: "
+					#print vitem
+					#print "hero item avg count: " + str(hero_item_count[hid])
+					# rec with new interface
+					wnames = players_json2hnamelist(wplayers, self.hid_org2new, self.hname2hid)
+					print fname
+					print "winning heros: " + str(wnames)
+					for i in range(0, len(wnames)):
+						hname = wnames[i]
+						print hname
+						rec = rec_vitem[i]
+						rec_name=[self.iname2iid.inverse[iid] for iid in rec]
+						print "recommended: " + str(rec_name)
+						print "actual: " + str(hero_vitem[i])
+						print "sim:" + str(team_sim[i])
+					print "rec-actual item purchase similarity of match " + str(fname) + ": " + str(sim)
 
 				sim_vec.append(sim)
 				if not np.isnan(sim):
@@ -72,12 +101,14 @@ class eva:
 			# similarity of the winning team
 			hero_vitem, rec_vitem = self.get_team_actual_rec_item(wplayers, model, enemies=lplayers)
 			if len(hero_vitem) > 0:
-				sim=team_purchase_sim_calc(self.iname2iid, hero_vitem, rec_vitem, sim_func='exist_in_rec')
+				team_sim=team_purchase_sim_calc(self.iname2iid, hero_vitem, rec_vitem, sim_func='exist_in_rec')
+				sim=aggr_similarity(team_sim)
 			result.append([sim, 1])
 			# similarity of the losing team
 			hero_vitem, rec_vitem = self.get_team_actual_rec_item(lplayers, model, enemies=wplayers)
 			if len(hero_vitem) > 0:
-				sim=team_purchase_sim_calc(self.iname2iid, hero_vitem, rec_vitem, sim_func='exist_in_rec')
+				team_sim=team_purchase_sim_calc(self.iname2iid, hero_vitem, rec_vitem, sim_func='exist_in_rec')
+				sim=aggr_similarity(team_sim)	
 			result.append([sim, 0])
 		return result
 
@@ -141,12 +172,6 @@ class eva:
 				else:
 					vitem[k]=purchase[k]
 			hero_vitem.append(vitem)
-			#print self.hname2hid.inverse[hid]
-			#print "actual purchase: "
-			#print vitem
-			#print "hero item avg count: " + str(hero_item_count[hid])
-			# rec with new interface
-
 
 			rec_dict=model.rec(hid, len(vitem), plist, elist)
 			rec = []
@@ -154,11 +179,6 @@ class eva:
 				#print rec_dict[itemclass]
 				rec += rec_dict[itemclass]
 			rec_vitem.append(rec)
-			# print recommended items
-			#print "recommended: "
-			rec_name=[self.iname2iid.inverse[iid] for iid in rec]
-			#print rec_name
-			#print ""
 		return hero_vitem, rec_vitem
 	# two evaluation plots:
 	# 1. similarity distribution in all winning teams

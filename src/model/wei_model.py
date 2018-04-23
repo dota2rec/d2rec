@@ -30,6 +30,7 @@ class wei_model(base_model):
         self.hid_org2new = rdata.hid_org2new
         self.iname2iid = rdata.item_name2id
         self.item_cost = rdata.item_cost
+        self.ihelper = rdata.ihelper
         self.datapath = datapath
         self.syn_iid_child = rdata.ihelper.syn_iid_child
 
@@ -171,8 +172,9 @@ class wei_model(base_model):
         list_2800 = []
         for index in tki:
             if item_id2cost[index] < 1000 and item_id2cost[index] > 185  and item_id2cost[index]and count_1000 < 7 and hifreq[index]/self.hero_frequence[h] > 0.2:
-                list_1000.append(index)
-                count_1000 +=1
+                if index not in self.ihelper.consume_iids_new_more:  
+                    list_1000.append(index)
+                    count_1000 +=1
             if item_id2cost[index] >= 1000 and item_id2cost[index] < 3000 and count_1000_2800 < 7 and hifreq[index]/self.hero_frequence[h] > 0.2:
                 list_1000_2800.append(index)
                 count_1000_2800 +=1

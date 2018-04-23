@@ -17,8 +17,8 @@ from prep import raw_data
 from base_model import base_model
 from evaluation import eva
 
-DATA_DIR = 'data/'
-TEST_DIR = 'test/'
+DATA_DIR = 'data_small/'
+TEST_DIR = 'test_small/'
 
 rdata  = raw_data(proj_root)
 

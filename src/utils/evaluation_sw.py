@@ -13,6 +13,7 @@ from utils import team_purchase_sim_calc
 from item import item as iclass
 from viz import cdf_plot
 from viz import bar_plot
+from utils import aggr_similarity
 
 
 def get_two_teams(data):
@@ -27,189 +28,195 @@ def get_two_teams(data):
 	return wplayers, lplayers
 
 class eva_sw:
-    def __init__(self, rdata):
-        self.iname2iid = rdata.item_name2id
+	def __init__(self, rdata):
+		self.iname2iid = rdata.item_name2id
  #       self.iid2iname = rdata.item_id2name
-        self.hname2hid = rdata.hero_name2id
-        self.hid_org2new = rdata.hid_org2new
-        self.item_cost = rdata.item_cost
-        self.syn_iid_child = rdata.ihelper.syn_iid_child
+		self.hname2hid = rdata.hero_name2id
+		self.hid_org2new = rdata.hid_org2new
+		self.item_cost = rdata.item_cost
+		self.ihelper = rdata.ihelper
+		self.syn_iid_child = rdata.ihelper.syn_iid_child
 
-    # assumes: we have tot_count[h] that stores the avg total "vital" item purchased by hero h
-    # assumes: dummy_is_vital(iid)
-    # necissity evaluation
-    # calculating probability
-    # returns: a vector that records the similarity in items of winning team of each match
-    def nec_eva(self, fpath, model):
-        print "necissity evaluation: "
-        mcount = 0
-        sim_sum = 0
-        sim_vec = []
-        for fname in tqdm(os.listdir(fpath)):
-            data = json.load(open(fpath + fname))
-            wplayers, lplayers = get_two_teams(data)
+	# assumes: we have tot_count[h] that stores the avg total "vital" item purchased by hero h
+	# assumes: dummy_is_vital(iid)
+	# necissity evaluation
+	# calculating probability
+	# returns: a vector that records the similarity in items of winning team of each match
+	def nec_eva(self, fpath, model):
+		print "necissity evaluation: "
+		mcount = 0
+		sim_sum = 0
+		sim_vec = []
+		for fname in tqdm(os.listdir(fpath)):
+			data = json.load(open(fpath + fname))
+			wplayers, lplayers = get_two_teams(data)
 
 
-            hero_vitem, rec_vitem = self.get_team_actual_rec_item(wplayers, model,enemies = lplayers )
+			hero_vitem, rec_vitem = self.get_team_actual_rec_item(wplayers, model,enemies = lplayers )
 
-            if len(hero_vitem) > 0:
-                sim = team_purchase_sim_calc(self.iname2iid, hero_vitem, rec_vitem, sim_func='exist_in_rec')
-                # print "rec-actual item purchase similarity of match " + str(fname) + ": " + str(sim)
+			if len(hero_vitem) > 0:
+				team_sim=team_purchase_sim_calc(self.iname2iid, hero_vitem, rec_vitem, sim_func='exist_in_rec')
+				if len(team_sim) != 0:
+					sim=aggr_similarity(team_sim)
+					# print "rec-actual item purchase similarity of match " + str(fname) + ": " + str(sim)
 
-                sim_vec.append(sim)
-                if not np.isnan(sim):
-                    sim_sum = (sim_sum * mcount + sim) / (mcount + 1)
-                    mcount += 1
-        print "all winners similarity avg: " + str(sim_sum)
-        return sim_vec
+					sim_vec.append(sim)
+					if not np.isnan(sim):
+						sim_sum = (sim_sum * mcount + sim) / (mcount + 1)
+						mcount += 1
+		print "all winners similarity avg: " + str(sim_sum)
+		return sim_vec
 
 
 # same prerequisites as nec_eva()
 # + bin: how many bucket we want to put all similarities in
 # returns
-    def suf_eva(self, fpath, model):
-        print "sufficiency evaluation:"
-        result = []
+	def suf_eva(self, fpath, model):
+		print "sufficiency evaluation:"
+		result = []
 
-        for fname in tqdm(os.listdir(fpath)):
-            data = json.load(open(fpath + fname))
-            wplayers, lplayers = get_two_teams(data)
+		for fname in tqdm(os.listdir(fpath)):
+			data = json.load(open(fpath + fname))
+			wplayers, lplayers = get_two_teams(data)
 
-            # similarity of the winning team
-            hero_vitem, rec_vitem = self.get_team_actual_rec_item(wplayers, model,enemies = lplayers)
-            if len(hero_vitem) > 0:
-                sim = team_purchase_sim_calc(self.iname2iid, hero_vitem, rec_vitem, sim_func='exist_in_rec')
-            result.append([sim, 1])
-            # similarity of the losing team
-            hero_vitem, rec_vitem = self.get_team_actual_rec_item(lplayers, model,enemies = lplayers)
-            if len(hero_vitem) > 0:
-                sim = team_purchase_sim_calc(self.iname2iid, hero_vitem, rec_vitem, sim_func='exist_in_rec')
-            result.append([sim, 0])
-        return result
-
-
-    def suf_histo(self, suf_res, bin=10):
-        unit = 1.0 / bin
-        bin = bin + 1
-        x = [((i * unit) + (unit / 2)) for i in range(0, bin)]
-        y = [0] * bin
-        y_tot = [0] * bin
-        for res in suf_res:
-            sim = res[0]
-            win = res[1]
-            index = int(sim / unit)
-            new_tot = y_tot[index] + 1
-            y[index] = (y[index] * y_tot[index] + win) / (float(new_tot))
-            y_tot[index] = new_tot
-        print "percentage: "
-        print y
-        print "sample count: "
-        print y_tot
-        print "bins: "
-        print x
-        bar_plot(x, y)
+			# similarity of the winning team
+			hero_vitem, rec_vitem = self.get_team_actual_rec_item(wplayers, model,enemies = lplayers)
+			if len(hero_vitem) > 0:
+				team_sim=team_purchase_sim_calc(self.iname2iid, hero_vitem, rec_vitem, sim_func='exist_in_rec')
+				sim=aggr_similarity(team_sim)    
+			result.append([sim, 1])
+			# similarity of the losing team
+			hero_vitem, rec_vitem = self.get_team_actual_rec_item(lplayers, model,enemies = lplayers)
+			if len(hero_vitem) > 0:
+				team_sim=team_purchase_sim_calc(self.iname2iid, hero_vitem, rec_vitem, sim_func='exist_in_rec')
+				sim=aggr_similarity(team_sim)    
+			result.append([sim, 0])
+		return result
 
 
-    # returns:
-    # 1. hero_vitem: actual [hero*{item:count}]
-    # 2. rec_vitem: recommended [item]
-    def get_team_actual_rec_item(self, players, model,enemies = None):
-        hero_vitem = []
-        rec_vitem = []
-        
-        plist = []
-        for p in players:
-            if p['hero_id'] != None:
-                hid=self.hid_org2new[p['hero_id']]
-		plist.append(hid)
-	    else:
-		    continue
-	elist=[]
-	for p in enemies:
-	    if p['hero_id'] != None:
-		hid=self.hid_org2new[p['hero_id']]
-		elist.append(hid)
-	    else:
-		continue
-        
-        for p in players:
-            # vital items that we consider
-            vitem = dict()
-            purchase = p['purchase']
-            if p['hero_id'] != None:
-                hid = self.hid_org2new[p['hero_id']]
-               
-            else:
-                continue
-            # print "purchase length of hero " + str(hid) + ": " + str(len(purchase))
-            for k in purchase:
-                if k not in self.iname2iid:
-                    pass
-                else:
-                    vitem[k] = purchase[k]
-    
+	def suf_histo(self, suf_res, bin=10):
+		unit = 1.0 / bin
+		bin = bin + 1
+		x = [((i * unit) + (unit / 2)) for i in range(0, bin)]
+		y = [0] * bin
+		y_tot = [0] * bin
+		for res in suf_res:
+			sim = res[0]
+			win = res[1]
+			index = int(sim / unit)
+			new_tot = y_tot[index] + 1
+			y[index] = (y[index] * y_tot[index] + win) / (float(new_tot))
+			y_tot[index] = new_tot
+		print "percentage: "
+		print y
+		print "sample count: "
+		print y_tot
+		print "bins: "
+		print x
+		bar_plot(x, y)
+
+
+	# returns:
+	# 1. hero_vitem: actual [hero*{item:count}]
+	# 2. rec_vitem: recommended [item]
+	def get_team_actual_rec_item(self, players, model,enemies = None):
+		hero_vitem = []
+		rec_vitem = []
+		
+		plist = []
+		for p in players:
+			if p['hero_id'] != None:
+				hid=self.hid_org2new[p['hero_id']]
+				plist.append(hid)
+			else:
+				continue
+		elist=[]
+		for p in enemies:
+			if p['hero_id'] != None:
+				hid=self.hid_org2new[p['hero_id']]
+				elist.append(hid)
+			else:
+				continue
+			
+			for p in players:
+				# vital items that we consider
+				vitem = dict()
+				purchase = p['purchase']
+				if p['hero_id'] != None:
+					hid = self.hid_org2new[p['hero_id']]
+				   
+				else:
+					continue
+				# print "purchase length of hero " + str(hid) + ": " + str(len(purchase))
+				for k in purchase:
+					if k not in self.iname2iid:
+						pass
+					else:
+						if self.ihelper.is_not_consider_more(k, self.iname2iid[k]):
+							vitem[k] = purchase[k]
+	
  #           hero_vitem.append(vitem)
-            #print vitem,vitem.keys()
-            #print "before"
-            #print vitem
-            temp = vitem.copy()
-            h_vitem = dict()
-            for itemname in vitem.keys():
-                item_id =self.iname2iid[itemname]
-                if item_id in self.syn_iid_child.keys():
-                    for child_id in self.syn_iid_child[item_id]:
-                        if self.iname2iid.inverse[child_id] in temp.keys():
-                            #and temp[self.iname2iid.inverse[child_id]] >0:
-                            temp[self.iname2iid.inverse[child_id]] = temp[self.iname2iid.inverse[child_id]] -1
-            
-            for it in temp.keys():
-                if temp[it] != 0 and self.item_cost[it] >185:
-                    h_vitem[it] = temp[it]
-            #print "reuslt"
-            #print temp
-            hero_vitem.append(h_vitem)
-            result_id = []
-            for item in h_vitem.keys():
-                result_id.append(self.iname2iid[item])
-            
-            
-            
-        # print self.hname2hid.inverse[hid]
-        # print "actual purchase: "
-        # print vitem
-        # print "hero item avg count: " + str(hero_item_count[hid])
-        # rec with new interface
+			#print vitem,vitem.keys()
+			#print "before"
+			#print vitem
+			temp = vitem.copy()
+			h_vitem = dict()
+			for itemname in vitem.keys():
+				item_id =self.iname2iid[itemname]
+				if item_id in self.syn_iid_child.keys():
+					for child_id in self.syn_iid_child[item_id]:
+						if self.iname2iid.inverse[child_id] in temp.keys():
+							#and temp[self.iname2iid.inverse[child_id]] >0:
+							temp[self.iname2iid.inverse[child_id]] = temp[self.iname2iid.inverse[child_id]] -1
+			
+			for it in temp.keys():
+				if temp[it] != 0 and self.item_cost[it] >185:
+					h_vitem[it] = temp[it]
+			#print "reuslt"
+			#print temp
+			hero_vitem.append(h_vitem)
+			result_id = []
+			for item in h_vitem.keys():
+				result_id.append(self.iname2iid[item])
+			
+			
+			
+		# print self.hname2hid.inverse[hid]
+		# print "actual purchase: "
+		# print vitem
+		# print "hero item avg count: " + str(hero_item_count[hid])
+		# rec with new interface
 
 
-            rec_dict = model.rec(hid, int(1.5*len(vitem)), plist, elist)
-            rec_list = []
-            for item in rec_dict.keys():
-                rec_list += rec_dict[item]
-            # rec=base_rec_h(hid, model, len(vitem))
-            rec_vitem.append(rec_list)
-            list_predict = []
-            for pre in rec_list:
-                list_predict.append(self.iname2iid.inverse[pre])
-            #print "predict"
-            #print list_predict
-            #print
-            
-    # print recommended items
-    # print "recommended: "
-    # rec_name=[self.iname2iid.inverse[iid] for iid in rec]
-    # print rec_name
-    # print ""
-        return hero_vitem, rec_vitem
-     
+			rec_dict = model.rec(hid, int(1.5*len(vitem)), plist, elist)
+			rec_list = []
+			for item in rec_dict.keys():
+				rec_list += rec_dict[item]
+			# rec=base_rec_h(hid, model, len(vitem))
+			rec_vitem.append(rec_list)
+			list_predict = []
+			for pre in rec_list:
+				list_predict.append(self.iname2iid.inverse[pre])
+			#print "predict"
+			#print list_predict
+			#print
+			
+	# print recommended items
+	# print "recommended: "
+	# rec_name=[self.iname2iid.inverse[iid] for iid in rec]
+	# print rec_name
+	# print ""
+		return hero_vitem, rec_vitem
+	 
 
-    # two evaluation plots:
-    # 1. similarity distribution in all winning teams
-    # 2. winning rate distribution in all similarity conditions
+	# two evaluation plots:
+	# 1. similarity distribution in all winning teams
+	# 2. winning rate distribution in all similarity conditions
 
-    # TODOs
-    # 3. how much similarity can we say that the hero followed the recommended item
-    # 4. inherent similarity: how much similarity in item purchase does a hero has
-    # in all conditions?
+	# TODOs
+	# 3. how much similarity can we say that the hero followed the recommended item
+	# 4. inherent similarity: how much similarity in item purchase does a hero has
+	# in all conditions?
 
 
-    # weighting
+	# weighting

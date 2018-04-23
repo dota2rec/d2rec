@@ -189,5 +189,5 @@ class classified_emfa_model:
 			if len(classified_tki[c]) < class2count[c]:
 				classified_tki[c].append(iid)
 		#print "length of rec() return: " + str(len(classified_tki['basic']))
-		print classified_tki[iclass.FINAL]
+		#print classified_tki[iclass.FINAL]
 		return classified_tki

@@ -9,9 +9,10 @@ from prep import raw_data
 from viz import cdf_plot
 from base_model import base_model
 from dummy_model import dummy_model
-from evaluation import eva
+#from evaluation import eva
 from classified_emfa_model import classified_emfa_model as cem
-#from wei_model import wei_model
+from evaluation_sw import eva_sw as eva
+from wei_model import wei_model
 
 # production test
 #DATA_DIR = 'data/'
@@ -24,18 +25,19 @@ TEST_DIR = 'test_small/'
 def evaluation():
 	rdata = raw_data(proj_root)
 	# base model prediction
-	bmodel = base_model(rdata, (proj_root + DATA_DIR))
-	bmodel.train()
+	#bmodel = base_model(rdata, (proj_root + DATA_DIR))
+	#bmodel.train()
 	evaluator = eva(rdata)
-	sim_vec = evaluator.nec_eva(proj_root+TEST_DIR, bmodel)
+	#sim_vec = evaluator.nec_eva(proj_root+TEST_DIR, bmodel)
 	
 	# dummy model recommendation
 	#model = dummy_model(rdata, (proj_root + DATA_DIR))
 	#model.train(opt='wrate')
-
-	# emfa model
-	model = cem(rdata, (proj_root + DATA_DIR))
+	model = wei_model(rdata, (proj_root + DATA_DIR))
 	model.train()
+	# emfa model
+	#model = cem(rdata, (proj_root + DATA_DIR))
+	#model.train()
 	# evaluation package
 	sim_vec = evaluator.nec_eva(proj_root+TEST_DIR, model)
 	#cdf_plot(sim_vec)
