@@ -70,13 +70,14 @@ class classified_emfa_model:
 			match_data = json.load(match_file)
 
 			for player in match_data['players']:
-				hero_id = player['hero_id']
 				# validate current player
-				if hero_id != None and player['purchase'] != None and hero_id in self.hid_org2new:
-					hero_id = self.hid_org2new[hero_id]
+				if player['hero_id'] != None and player['purchase'] != None:
+					hero_id = self.hid_org2new[player['hero_id']]
 				else:
 					continue
 				# get hid and purchases of the hero
+				hero_id = self.hid_org2new[player['hero_id']]
+				#print hero_id
 				purchases = player['purchase']
 				win = player['isRadiant'] == player['radiant_win']
 				# how many final item present at this match for this hero
@@ -146,23 +147,8 @@ class classified_emfa_model:
 			try:
 				self.conf_all_icount[i] = int(np.percentile(all_icount[i], 90))
 				self.conf_acount[i] = int(np.percentile(tot_acount[i], 50))
-				#print all_icount[i]
-				#print tot_acount[i]
 			except:
 				pass
-				#print "hero id " + str(i) + " confidence aggregation: " 
-				#print all_icount[i]
-				#print tot_acount[i]
-				#print "Pls. use a larger dataset that at least covers all heros!"
-		#test = 83
-		#print self.avg_etot[test]
-		#print self.avg_mtot[test]
-		# confident final (X% confidence in terms of match time coverage)
-		# 1. total item count for a match per hero
-		#print self.conf_all_icount[test]
-		# 2. total assistance item count for a match per hero
-		#print self.conf_acount[test]
-		# is_assistance() in item.py
 
 	# @h: the hero id
 	# @k: how many items to return

@@ -47,16 +47,15 @@ class item:
 		self.icost = icost
 		# dust:40, ward_observer:42, ward_sentry:43
 		# ward_dispenser:218, courier:45, flying_courier:84
-		self.assist_iids = [40, 42, 43, 218, 45, 84]
+		self.assist_iids = [40, 42, 43, 218, 45, 84, 188]
 		self.assist_iids = self.lst_id_org2new(self.assist_iids)
-		print self.assist_iids
+		#print self.assist_iids
 
 		self.iname2iid = iname2iid
 		pass
 
 	@staticmethod
 	def is_recipe(iname):
-		print iname
 		return re.match('recipe_', iname)!=None
 
 	@staticmethod

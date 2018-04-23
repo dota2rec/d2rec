@@ -48,11 +48,12 @@ class base_model:
 			match_file = open(self.datapath + match_file_name)
 			match_data = json.load(match_file)
 			for player in match_data['players']:
-				if player['hero_id'] != None and player['purchase'] != None:
-					hero_id = self.hid_org2new[player['hero_id']]
+				hero_id = player['hero_id']
+				# validate current player
+				if hero_id != None and player['purchase'] != None and hero_id in self.hid_org2new:
+					hero_id = self.hid_org2new[hero_id]
 				else:
 					continue
-				hero_id = self.hid_org2new[player['hero_id']]
 				purchases = player['purchase']
 
 				win = player['isRadiant'] == player['radiant_win']

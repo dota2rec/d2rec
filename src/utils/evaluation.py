@@ -61,24 +61,24 @@ class eva:
 				# sim vector for the whole team
 				team_sim=team_purchase_sim_calc(self.iname2iid, hero_vitem, rec_vitem, sim_func='exist_in_rec')
 				sim=aggr_similarity(team_sim)
-				if sim > 0.85:
-					#print self.hname2hid.inverse[hid]
-					#print "actual purchase: "
-					#print vitem
-					#print "hero item avg count: " + str(hero_item_count[hid])
-					# rec with new interface
-					wnames = players_json2hnamelist(wplayers, self.hid_org2new, self.hname2hid)
-					print fname
-					print "winning heros: " + str(wnames)
-					for i in range(0, len(wnames)):
-						hname = wnames[i]
-						print hname
-						rec = rec_vitem[i]
-						rec_name=[self.iname2iid.inverse[iid] for iid in rec]
-						print "recommended: " + str(rec_name)
-						print "actual: " + str(hero_vitem[i])
-						print "sim:" + str(team_sim[i])
-					print "rec-actual item purchase similarity of match " + str(fname) + ": " + str(sim)
+				#if sim > 0.85:
+				#	#print self.hname2hid.inverse[hid]
+				#	#print "actual purchase: "
+				#	#print vitem
+				#	#print "hero item avg count: " + str(hero_item_count[hid])
+				#	# rec with new interface
+				#	wnames = players_json2hnamelist(wplayers, self.hid_org2new, self.hname2hid)
+				#	#print fname
+				#	print "winning heros: " + str(wnames)
+				#	for i in range(0, len(wnames)):
+				#		hname = wnames[i]
+				#		print hname
+				#		rec = rec_vitem[i]
+				#		rec_name=[self.iname2iid.inverse[iid] for iid in rec]
+				#		print "recommended: " + str(rec_name)
+				#		print "actual: " + str(hero_vitem[i])
+				#		print "sim:" + str(team_sim[i])
+				#	print "rec-actual item purchase similarity of match " + str(fname) + ": " + str(sim)
 
 				sim_vec.append(sim)
 				if not np.isnan(sim):

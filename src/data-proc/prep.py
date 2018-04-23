@@ -107,4 +107,4 @@ def test():
 	#print item_cost
 	#iid_org2new.__print__()
 
-test()
+#test()
